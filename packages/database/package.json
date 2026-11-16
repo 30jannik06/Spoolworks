@@ -1,0 +1,26 @@
+{
+  "name": "@spoolworks/database",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "postinstall": "prisma generate",
+    "db:generate": "prisma generate",
+    "db:migrate": "prisma migrate dev",
+    "db:deploy": "prisma migrate deploy",
+    "db:studio": "prisma studio",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@prisma/adapter-pg": "^7.10.1",
+    "@prisma/client": "^7.10.1",
+    "dotenv": "^18.0.10"
+  },
+  "devDependencies": {
+    "@types/node": "^24.19.2",
+    "prisma": "^7.10.1",
+    "typescript": "6.0.3"
+  }
+}
