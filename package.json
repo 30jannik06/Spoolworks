@@ -1,0 +1,25 @@
+{
+  "name": "spoolworks",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@12.21.0",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "build": "turbo run build",
+    "dev": "turbo run dev",
+    "lint": "turbo run lint",
+    "typecheck": "turbo run typecheck",
+    "test": "turbo run test",
+    "db:generate": "pnpm --filter @spoolworks/database db:generate",
+    "db:migrate": "pnpm --filter @spoolworks/database db:migrate",
+    "db:deploy": "pnpm --filter @spoolworks/database db:deploy",
+    "db:studio": "pnpm --filter @spoolworks/database db:studio"
+  },
+  "devDependencies": {
+    "@types/node": "^24.19.2",
+    "turbo": "2.11.11",
+    "typescript": "6.0.3"
+  }
+}

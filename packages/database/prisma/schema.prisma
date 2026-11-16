@@ -1,0 +1,102 @@
+// SpoolWorks data model. Single source of truth; see the repo CLAUDE.md for the
+// rules behind it (ownership via Workshop, catalog vs owned spool, ledger).
+
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ─── Better Auth core tables ──────────────────────────────────────────────────
+// Shape required by Better Auth 1.7 (email + password). Better Auth's own
+// "Account" is a login method, not a SpoolWorks account: the tenant is Workshop.
+
+model User {
+  id            String   @id @default(cuid())
+  name          String
+  email         String   @unique
+  emailVerified Boolean  @default(false)
+  image         String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  sessions Session[]
+  accounts Account[]
+  workshop Workshop?
+
+  @@map("user")
+}
+
+model Session {
+  id        String   @id @default(cuid())
+  expiresAt DateTime
+  token     String   @unique
+  ipAddress String?
+  userAgent String?
+  userId    String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("session")
+}
+
+model Account {
+  id                    String    @id @default(cuid())
+  accountId             String
+  providerId            String
+  userId                String
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  /// Hashed by Better Auth for the email/password provider; null for OAuth.
+  password              String?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([providerId, accountId])
+  @@index([userId])
+  @@map("account")
+}
+
+model Verification {
+  id         String   @id @default(cuid())
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([identifier])
+  @@map("verification")
+}
+
+// ─── SpoolWorks ───────────────────────────────────────────────────────────────
+
+/// The tenant. Every owned row (spools, printers, prints) hangs off a workshop,
+/// never off the user directly, so sharing a workshop later is not a schema break.
+/// Created automatically when a user signs up (1:1 for now).
+model Workshop {
+  id                 String   @id @default(cuid())
+  ownerId            String   @unique
+  name               String   @default("Meine Werkstatt")
+  /// Spools at or below this net weight (grams) show a low-stock warning.
+  lowStockThresholdG Int      @default(150)
+  /// Whole gallery public at /u/<publicHandle>. Inventory is never public.
+  galleryPublic      Boolean  @default(false)
+  publicHandle       String?  @unique
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  owner User @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+}
