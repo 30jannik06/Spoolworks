@@ -1,0 +1,8 @@
+# Store LF in the repo, let Git handle checkout.
+* text=auto eol=lf
+
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.ico binary
+*.webp binary
