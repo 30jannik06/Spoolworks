@@ -77,6 +77,7 @@ Agreed direction (2026-11-17): near-black (`#0e0e0d`) / warm paper (`#f4f3ef`) b
 - **Tenant = `Workshop`**, not `User` and not Better Auth's `Account` (that is a login method). Every owned row hangs off `workshopId`. `requireWorkshop()` in `lib/session.ts` is the entry point for pages and actions; every server action calls it itself, UI gating is cosmetic.
 - **Not found and not yours look the same** (404), never 403.
 - **Printers and AMS:** `Printer` → `AmsUnit` (`slotCount` 4 or 1, hardware-neutral) → `AmsSlot`. `AmsSlot.spoolId` is unique: a spool sits in at most one slot, none means "on the shelf". Assigning moves a spool out of its old slot in the same transaction; archiving a spool unloads it. `Spool.location` is the user's own text and is never overwritten by slot data.
+- **Prints and the ledger:** a `PrintUsage` owns at most one PRINT ledger entry, and only while the print is PRINTED or FAILED (failed prints deduct). Edits update that entry in place so its `seq` stays put: booking order decides whether a later weighing wins, not the print date. Every change locks the affected spools in sorted id order and recomputes `remainingG`. A spool with usages cannot be deleted (archive it instead).
 - **Integers only:** weights in whole grams (`…G`), prices in cents (`…Cents`), diameters in micrometres (`…Um`). No floats.
 - **Copy:** user-facing text is German and lives in `apps/web/src/messages/de.ts`. Code, comments, identifiers and commits are English.
 - **Mobile first:** every page usable on a phone; touch targets at least 44 px (`h-11` / `min-h-11`), inputs `text-base` (no iOS zoom).
@@ -85,4 +86,4 @@ Agreed direction (2026-11-17): near-black (`#0e0e0d`) / warm paper (`#f4f3ef`) b
 
 ## Status
 
-Phases 0–2 done (monorepo and auth, filament library with ledger, OFD catalog import, printers with AMS slots). See the hub for phases 3–5.
+Phases 0–3 done (monorepo and auth, filament library with ledger, OFD catalog import, printers with AMS slots, print gallery with spool deduction; photos still open). See the hub for phases 4–5.

@@ -108,7 +108,7 @@ export function PrintForm({
             options={PRINT_STATUSES.map((value) => ({ value, label: p.status[value] }))}
           />
         </Field>
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid gap-3 sm:grid-cols-2">
           <Field label={p.printedOn} htmlFor="printedOn" error={errors["printedOn"]}>
             <DatePicker id="printedOn" name="printedOn" defaultValue={defaults.printedOn} />
           </Field>
@@ -189,7 +189,7 @@ export function PrintForm({
             <Plus aria-hidden="true" />
             {p.usageAdd}
           </Button>
-          {printerId && loadedFor(printerId).length > 0 && (
+          {printerId && loadedFor(printerId).some((id) => !rows.some((row) => row.spoolId === id)) && (
             <Button type="button" variant="outline" className="h-11" onClick={prefillFromPrinter}>
               <Wand2 aria-hidden="true" />
               {p.printerPrefill}
@@ -238,7 +238,7 @@ function UsageRow({
   const message = errorText(error);
   return (
     <li className="space-y-1">
-      <div className="flex items-center gap-2">
+      <div className="flex flex-wrap items-center gap-2 sm:flex-nowrap">
         <SpoolRing
           fraction={selected?.fraction ?? 0}
           color={selected?.colorHex}
@@ -254,7 +254,7 @@ function UsageRow({
           name={`usages.${index}.spoolId`}
           value={row.spoolId}
           onChange={(event) => onChange({ spoolId: event.target.value })}
-          className={cn("min-w-0 flex-1", !row.spoolId && "text-muted-foreground")}
+          className={cn("min-w-0 flex-1 basis-[calc(100%-2.5rem)] sm:basis-auto", !row.spoolId && "text-muted-foreground")}
         >
           <option value="">{p.usageSpoolPick}</option>
           {spools.map((spool) => (
@@ -267,7 +267,7 @@ function UsageRow({
         <label htmlFor={`${id}-grams`} className="sr-only">
           {p.usageGrams}
         </label>
-        <div className="relative w-24 shrink-0">
+        <div className="relative ml-10 w-24 shrink-0 sm:ml-0">
           <Input
             id={`${id}-grams`}
             name={`usages.${index}.grams`}
