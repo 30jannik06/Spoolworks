@@ -14,8 +14,13 @@ function createPrismaClient(): PrismaClient {
       "DATABASE_URL is not set. Copy .env.example to .env at the repo root and fill it in.",
     );
   }
+  // `prisma dev` (local, PGlite-based) handles one connection at a time; with a
+  // larger pool, concurrent requests fail with Postgres error 08P01. Locally set
+  // DATABASE_POOL_MAX=1; on Neon leave it unset and use pg's default pool.
+  const poolMax = Number(process.env["DATABASE_POOL_MAX"]) || undefined;
+
   return new PrismaClient({
-    adapter: new PrismaPg({ connectionString }),
+    adapter: new PrismaPg({ connectionString, ...(poolMax ? { max: poolMax } : {}) }),
     log: process.env["NODE_ENV"] === "development" ? ["warn", "error"] : ["error"],
   });
 }
