@@ -63,12 +63,12 @@ export function Sidebar({ userName, workshopName }: { userName: string; workshop
           })}
         </nav>
 
-        <div className="mt-auto border-t p-3">
+        <div className="mt-auto space-y-3 border-t p-3">
+          <div className="min-w-0 px-1">
+            <p className="truncate text-sm font-medium">{userName}</p>
+            <p className="truncate text-xs text-muted-foreground">{workshopName}</p>
+          </div>
           <div className="flex items-center gap-2">
-            <div className="min-w-0 flex-1 px-1">
-              <p className="truncate text-sm font-medium">{userName}</p>
-              <p className="truncate text-xs text-muted-foreground">{workshopName}</p>
-            </div>
             <Link
               href="/settings"
               aria-label={de.nav.settings}

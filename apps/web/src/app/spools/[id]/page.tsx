@@ -73,9 +73,10 @@ async function SpoolDetail({ params }: { params: PageProps<"/spools/[id]">["para
         </p>
       </div>
 
+      {/* Phones: ring, then the keypad (you are standing at the scale), then details.
+          Desktop: details on the left, keypad sticky on the right. */}
       <div className="grid gap-4 lg:grid-cols-[1fr_380px] lg:items-start">
-        <div className="space-y-4">
-          <Tile className="flex flex-col items-center gap-5 py-8 sm:flex-row sm:justify-center sm:gap-10 md:p-8">
+          <Tile className="flex flex-col items-center gap-5 py-8 sm:flex-row sm:justify-center sm:gap-10 md:p-8 lg:col-start-1 lg:row-start-1">
             <SpoolRing
               fraction={spool.fraction}
               color={spool.colorHex}
@@ -98,6 +99,20 @@ async function SpoolDetail({ params }: { params: PageProps<"/spools/[id]">["para
             </div>
           </Tile>
 
+        <Tile className="md:p-5 lg:sticky lg:top-6 lg:col-start-2 lg:row-span-2 lg:row-start-1">
+          <WeighPanel
+            spools={[
+              {
+                id: spool.id,
+                label: `${spool.productLine} ${spool.colorName}`,
+                colorHex: spool.colorHex,
+                emptySpoolWeightG: spool.emptySpoolWeightG,
+              },
+            ]}
+          />
+        </Tile>
+
+        <div className="space-y-4 lg:col-start-1 lg:row-start-2">
           <div className="grid grid-cols-2 gap-3 md:grid-cols-3">
             {facts.map((fact) => (
               <Tile key={fact.label}>
@@ -150,19 +165,6 @@ async function SpoolDetail({ params }: { params: PageProps<"/spools/[id]">["para
 
           <SpoolActions spoolId={spool.id} archived={spool.status === "ARCHIVED"} />
         </div>
-
-        <Tile className="md:p-5 lg:sticky lg:top-6">
-          <WeighPanel
-            spools={[
-              {
-                id: spool.id,
-                label: `${spool.productLine} ${spool.colorName}`,
-                colorHex: spool.colorHex,
-                emptySpoolWeightG: spool.emptySpoolWeightG,
-              },
-            ]}
-          />
-        </Tile>
       </div>
     </div>
   );
