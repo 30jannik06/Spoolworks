@@ -69,7 +69,7 @@ export const de = {
     modeNew: "Neues Produkt",
     search: "Suchen",
     searchPlaceholder: "Bambu PLA Basic Schwarz",
-    searchHint: "Mindestens 2 Zeichen. Katalog aus der Open Filament Database, Farbnamen meist englisch.",
+    searchHint: "Mindestens 2 Zeichen. Farbnamen meist englisch. Der Katalog enthält nur Produktdaten, keine Spulen anderer.",
     searchEmpty: "Nichts gefunden. Leg das Produkt neu an.",
     change: "Ändern",
     discontinued: "nicht mehr erhältlich",
