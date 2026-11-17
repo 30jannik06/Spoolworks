@@ -1,6 +1,6 @@
 "use client";
 
-import { Plus } from "lucide-react";
+import { Plus, Settings } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useCallback, useState } from "react";
@@ -69,6 +69,14 @@ export function Sidebar({ userName, workshopName }: { userName: string; workshop
               <p className="truncate text-sm font-medium">{userName}</p>
               <p className="truncate text-xs text-muted-foreground">{workshopName}</p>
             </div>
+            <Link
+              href="/settings"
+              aria-label={de.nav.settings}
+              title={de.nav.settings}
+              className="flex size-11 items-center justify-center rounded-lg border text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+            >
+              <Settings className="size-[18px]" aria-hidden="true" />
+            </Link>
             <ThemeToggle />
             <SignOutButton />
           </div>
