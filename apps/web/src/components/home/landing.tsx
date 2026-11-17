@@ -34,7 +34,7 @@ function Hero() {
       <div className="mx-auto grid max-w-6xl items-center gap-12 px-4 py-14 md:grid-cols-[1.05fr_1fr] md:gap-16 md:px-8 md:py-24">
         <div>
           <Eyebrow>{t.eyebrow}</Eyebrow>
-          <h1 className="mt-4 text-[2.6rem] leading-[1.02] font-medium tracking-[-0.035em] md:text-6xl">
+          <h1 className="mt-4 text-[2.6rem] leading-[1.02] font-medium tracking-[-0.035em] text-balance md:text-[3.5rem]">
             {t.title}
           </h1>
           <p className="mt-5 max-w-lg text-lg text-muted-foreground">{t.body}</p>
