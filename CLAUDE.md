@@ -11,6 +11,7 @@ pnpm workspaces + Turborepo.
 | Path | Contents | May import |
 | --- | --- | --- |
 | `apps/web` | Next.js 16 App Router: pages, server actions, route handlers, UI, German copy | everything |
+| `apps/catalog-sync` | CLI that imports the Open Filament Database into the product catalog | `core`, `database` |
 | `packages/database` | Prisma 7 schema, migrations, generated client, `prisma` singleton | `@prisma/*` only |
 | `packages/core` | Pure domain logic (weights, ledger, short codes, zod contracts) + Vitest | `zod` only |
 
@@ -27,7 +28,18 @@ pnpm typecheck        # web runs `next typegen` first (LayoutProps etc.)
 pnpm test
 pnpm lint
 pnpm build            # needs DATABASE_URL set, but does not connect
+pnpm --filter @spoolworks/catalog-sync sync [--dry-run] [--file all.json.gz]   # import OFD catalog
 ```
+
+## Product catalog
+
+`FilamentProduct` is global (no personal data) and mostly comes from the [Open Filament Database](https://github.com/OpenFilamentCollective/open-filament-database) (MIT): `apps/catalog-sync` downloads the daily `all.json.gz` and syncs it. Mapping and sync planning are pure functions in `packages/core/src/ofd.ts`.
+
+- One product per OFD size (colour × net weight × diameter). Refill and spooled versions are merged: the empty-spool weight is recorded per owned spool.
+- `ofdUuid` is OFD's stable size UUID; renames are followed through `moved_from`.
+- Only rows with `ofdManaged = true` (created by the import) follow upstream changes. A product a user typed in that matches an OFD product only gets its `ofdUuid` attached and is never overwritten.
+- Materials: OFD's ~40 are grouped into our enum (nylons → `PA`, long tail → `OTHER`).
+- The CLI refuses non-local databases without `--allow-remote`. Importing into production is a deliberate manual step, not part of the build.
 
 ## Environment
 
