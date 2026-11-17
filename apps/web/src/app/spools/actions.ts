@@ -178,11 +178,18 @@ export async function correctSpool(_prev: ActionState, formData: FormData): Prom
 
 export async function setSpoolArchived(spoolId: string, archived: boolean): Promise<ActionState> {
   const { workshop } = await requireWorkshop();
-  const result = await prisma.spool.updateMany({
-    where: { id: spoolId, workshopId: workshop.id },
-    data: { status: archived ? "ARCHIVED" : "ACTIVE" },
+  const count = await prisma.$transaction(async (tx) => {
+    const result = await tx.spool.updateMany({
+      where: { id: spoolId, workshopId: workshop.id },
+      data: { status: archived ? "ARCHIVED" : "ACTIVE" },
+    });
+    // An archived spool is used up or put away: it cannot stay loaded in an AMS slot.
+    if (result.count > 0 && archived) {
+      await tx.amsSlot.updateMany({ where: { spoolId }, data: { spoolId: null } });
+    }
+    return result.count;
   });
-  if (result.count === 0) return { ok: false, error: "not_found" };
+  if (count === 0) return { ok: false, error: "not_found" };
   refresh();
   return { ok: true };
 }

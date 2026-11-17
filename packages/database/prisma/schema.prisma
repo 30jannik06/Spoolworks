@@ -102,7 +102,8 @@ model Workshop {
 
   owner User @relation(fields: [ownerId], references: [id], onDelete: Cascade)
 
-  spools Spool[]
+  spools   Spool[]
+  printers Printer[]
 }
 
 // ─── Catalog (global, product facts only) ────────────────────────────────────
@@ -201,6 +202,8 @@ model Spool {
   workshop Workshop           @relation(fields: [workshopId], references: [id], onDelete: Cascade)
   product  FilamentProduct    @relation(fields: [productId], references: [id], onDelete: Restrict)
   ledger   SpoolLedgerEntry[]
+  /// The AMS slot this spool is loaded in; none means it is on the shelf.
+  slot     AmsSlot?
 
   @@index([workshopId, status])
   @@index([productId])
@@ -231,4 +234,51 @@ model SpoolLedgerEntry {
   spool Spool @relation(fields: [spoolId], references: [id], onDelete: Cascade)
 
   @@index([spoolId, seq])
+}
+
+// ─── Printers and AMS (owned by a workshop) ──────────────────────────────────
+
+model Printer {
+  id         String   @id @default(cuid())
+  workshopId String
+  name       String
+  /// Free text, e.g. "Bambu Lab P2S".
+  model      String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  workshop Workshop  @relation(fields: [workshopId], references: [id], onDelete: Cascade)
+  units    AmsUnit[]
+
+  @@index([workshopId])
+}
+
+/// A filament feeder on a printer: an AMS with 4 slots, or a single slot
+/// (AMS HT, external spool holder). Removing it puts its spools back on the shelf.
+model AmsUnit {
+  id        String   @id @default(cuid())
+  printerId String
+  /// 1-based order on the printer ("AMS 1", "AMS 2").
+  position  Int
+  slotCount Int
+  createdAt DateTime @default(now())
+
+  printer Printer   @relation(fields: [printerId], references: [id], onDelete: Cascade)
+  slots   AmsSlot[]
+
+  @@unique([printerId, position])
+}
+
+model AmsSlot {
+  id       String  @id @default(cuid())
+  unitId   String
+  /// 1-based slot number within the unit.
+  position Int
+  /// Unique: a spool sits in at most one slot. Deleting the spool empties the slot.
+  spoolId  String? @unique
+
+  unit  AmsUnit @relation(fields: [unitId], references: [id], onDelete: Cascade)
+  spool Spool?  @relation(fields: [spoolId], references: [id], onDelete: SetNull)
+
+  @@unique([unitId, position])
 }
