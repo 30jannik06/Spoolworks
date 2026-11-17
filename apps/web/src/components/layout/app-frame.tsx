@@ -1,3 +1,4 @@
+import { Settings } from "lucide-react";
 import Link from "next/link";
 import type { ReactNode } from "react";
 
@@ -34,6 +35,13 @@ export async function AppFrame({ children }: { children: ReactNode }) {
             {de.app.name}
           </Link>
           <div className="flex items-center gap-2">
+            <Link
+              href="/settings"
+              aria-label={de.nav.settings}
+              className="flex size-11 items-center justify-center rounded-lg border text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+            >
+              <Settings className="size-[18px]" aria-hidden="true" />
+            </Link>
             <ThemeToggle />
             <SignOutButton />
           </div>

@@ -1,15 +1,25 @@
 "use client";
 
-import { PackagePlus, ReceiptText, Scale } from "lucide-react";
+import { ChevronRight, PackagePlus, ReceiptText, Scale } from "lucide-react";
+import Link from "next/link";
 import { useEffect } from "react";
 
 import { de } from "@/messages/de";
 
-const ACTIONS = [
+type Action = {
+  label: string;
+  hint: string;
+  icon: typeof Scale;
+  /** Target page, or the phase that brings it. */
+  href?: string;
+  phase?: number;
+};
+
+const ACTIONS: Action[] = [
+  { label: de.quickActions.weighSpool, hint: de.quickActions.weighSpoolHint, icon: Scale, href: "/weigh" },
+  { label: de.quickActions.addSpool, hint: de.quickActions.addSpoolHint, icon: PackagePlus, href: "/spools/new" },
   { label: de.quickActions.logPrint, hint: de.quickActions.logPrintHint, icon: ReceiptText, phase: 3 },
-  { label: de.quickActions.weighSpool, hint: de.quickActions.weighSpoolHint, icon: Scale, phase: 1 },
-  { label: de.quickActions.addSpool, hint: de.quickActions.addSpoolHint, icon: PackagePlus, phase: 1 },
-] as const;
+];
 
 /**
  * Quick actions behind the "+" (mobile) and "Neu" (desktop) buttons. A bottom
@@ -37,20 +47,41 @@ export function QuickActions({ onClose }: { onClose: () => void }) {
         <div className="mx-auto max-w-2xl rounded-t-xl border border-b-0 bg-popover p-4 pb-5 md:w-full md:max-w-md md:rounded-xl md:border-b">
           <p className="eyebrow mb-3">{de.quickActions.title}</p>
           <ul className="divide-y rounded-xl border">
-            {ACTIONS.map(({ label, hint, icon: Icon, phase }) => (
-              <li key={label} className="flex min-h-14 items-center gap-3 px-3 py-2.5">
-                <span className="flex size-9 items-center justify-center rounded-lg border bg-card">
-                  <Icon className="size-[18px]" />
-                </span>
-                <span className="flex-1">
-                  <span className="block text-sm font-medium">{label}</span>
-                  <span className="block text-xs text-muted-foreground">{hint}</span>
-                </span>
-                <span className="rounded-md border px-1.5 py-0.5 font-mono text-[11px] text-muted-foreground">
-                  {de.quickActions.comingInPhase(phase)}
-                </span>
-              </li>
-            ))}
+            {ACTIONS.map(({ label, hint, icon: Icon, href, phase }) => {
+              const content = (
+                <>
+                  <span className="flex size-9 items-center justify-center rounded-lg border bg-card">
+                    <Icon className="size-[18px]" />
+                  </span>
+                  <span className="flex-1">
+                    <span className="block text-sm font-medium">{label}</span>
+                    <span className="block text-xs text-muted-foreground">{hint}</span>
+                  </span>
+                  {href ? (
+                    <ChevronRight className="size-4 text-muted-foreground" aria-hidden="true" />
+                  ) : (
+                    <span className="rounded-md border px-1.5 py-0.5 font-mono text-[11px] text-muted-foreground">
+                      {de.quickActions.comingInPhase(phase ?? 0)}
+                    </span>
+                  )}
+                </>
+              );
+              return (
+                <li key={label}>
+                  {href ? (
+                    <Link
+                      href={href}
+                      onClick={onClose}
+                      className="flex min-h-14 items-center gap-3 px-3 py-2.5 transition-colors hover:bg-accent/60"
+                    >
+                      {content}
+                    </Link>
+                  ) : (
+                    <div className="flex min-h-14 items-center gap-3 px-3 py-2.5 text-muted-foreground">{content}</div>
+                  )}
+                </li>
+              );
+            })}
           </ul>
         </div>
       </div>
