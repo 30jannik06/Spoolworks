@@ -156,16 +156,32 @@ export async function getSpool(workshopId: string, spoolId: string, thresholdG: 
   return row ? toView(row, thresholdG) : null;
 }
 
-export type LedgerView = { seq: number; kind: "INITIAL" | "WEIGHING" | "CORRECTION" | "PRINT"; valueG: number; active: boolean; createdAt: Date };
+export type LedgerView = {
+  seq: number;
+  kind: "INITIAL" | "WEIGHING" | "CORRECTION" | "PRINT";
+  valueG: number;
+  active: boolean;
+  createdAt: Date;
+  /** For PRINT entries: the print that took the grams. */
+  print: { id: string; name: string } | null;
+};
 
 /** The spool's history, newest first. Scoped through the spool's workshop. */
 export async function getSpoolLedger(workshopId: string, spoolId: string): Promise<LedgerView[]> {
-  return prisma.spoolLedgerEntry.findMany({
+  const rows = await prisma.spoolLedgerEntry.findMany({
     where: { spoolId, spool: { workshopId } },
-    select: { seq: true, kind: true, valueG: true, active: true, createdAt: true },
+    select: {
+      seq: true,
+      kind: true,
+      valueG: true,
+      active: true,
+      createdAt: true,
+      usage: { select: { print: { select: { id: true, name: true } } } },
+    },
     orderBy: { seq: "desc" },
     take: 50,
   });
+  return rows.map(({ usage, ...row }) => ({ ...row, print: usage?.print ?? null }));
 }
 
 /** Figures for the dashboard. */
