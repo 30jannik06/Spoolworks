@@ -148,7 +148,15 @@ model FilamentProduct {
   netWeightG   Int
   /// Typical empty-spool weight; pre-fills new spools of this product.
   spoolWeightG Int?
-  ean          String?  @unique
+  /// Barcode (EAN/UPC/GTIN) as printed. Not unique: the open catalog lists a few
+  /// codes on several products.
+  ean          String?
+  /// Size UUID in the Open Filament Database; null for products users typed in.
+  ofdUuid      String?  @unique
+  /// True when the import created the row and may update it. Linked user rows stay false
+  /// and are never overwritten.
+  ofdManaged   Boolean  @default(false)
+  discontinued Boolean  @default(false)
   /// Who added the product. Only they may edit it until there is moderation.
   createdById  String?
   createdAt    DateTime @default(now())
@@ -160,6 +168,7 @@ model FilamentProduct {
 
   @@unique([brandId, productLine, material, colorName, diameterUm, netWeightG])
   @@index([material])
+  @@index([ean])
 }
 
 // ─── Inventory (owned by a workshop) ─────────────────────────────────────────

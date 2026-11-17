@@ -1,6 +1,6 @@
 import "server-only";
 
-import { MATERIALS, remainingFraction, type Material } from "@spoolworks/core";
+import { colorSearchTerms, MATERIALS, remainingFraction, type Material } from "@spoolworks/core";
 import { prisma, type Prisma } from "@spoolworks/database";
 
 /**
@@ -166,7 +166,8 @@ export async function searchProducts(query: string) {
       AND: terms.map((term) => ({
         OR: [
           { productLine: { contains: term, mode: "insensitive" as const } },
-          { colorName: { contains: term, mode: "insensitive" as const } },
+          // The imported catalog names colours in English; "Schwarz" also finds "Black".
+          ...colorSearchTerms(term).map((color) => ({ colorName: { contains: color, mode: "insensitive" as const } })),
           { brand: { name: { contains: term, mode: "insensitive" as const } } },
           ...(MATERIALS.includes(term.toUpperCase() as Material)
             ? [{ material: term.toUpperCase() as Material }]
@@ -175,8 +176,8 @@ export async function searchProducts(query: string) {
       })),
     },
     include: { brand: true },
-    orderBy: [{ brand: { name: "asc" } }, { productLine: "asc" }, { colorName: "asc" }],
-    take: 12,
+    orderBy: [{ discontinued: "asc" }, { brand: { name: "asc" } }, { productLine: "asc" }, { colorName: "asc" }],
+    take: 20,
   });
   return rows.map((row) => ({
     id: row.id,
@@ -186,7 +187,9 @@ export async function searchProducts(query: string) {
     colorName: row.colorName,
     colorHex: row.colorHex,
     netWeightG: row.netWeightG,
+    diameterUm: row.diameterUm,
     spoolWeightG: row.spoolWeightG,
+    discontinued: row.discontinued,
   }));
 }
 
