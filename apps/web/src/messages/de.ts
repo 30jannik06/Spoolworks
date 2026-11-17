@@ -228,6 +228,11 @@ export const de = {
     too_many_units: "Mehr Einheiten passen an diesen Drucker nicht.",
     invalid_slot_count: "Art der Einheit wählen.",
     conflict: "Gleichzeitig geändert. Bitte noch einmal versuchen.",
+    spool_has_prints: "Diese Spule steckt in Drucken. Archiviere sie stattdessen.",
+    print_not_found: "Diesen Druck gibt es nicht (mehr).",
+    duplicate_spool: "Diese Spule ist schon in einer anderen Zeile.",
+    invalid_duration: "Dauer wie 2:30 oder 90 eingeben.",
+    invalid_status: "Status wählen.",
     fallback: "Etwas ist schiefgelaufen. Bitte versuch es erneut.",
   },
   quickActions: {

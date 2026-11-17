@@ -194,11 +194,20 @@ export async function setSpoolArchived(spoolId: string, archived: boolean): Prom
   return { ok: true };
 }
 
-/** Deleting removes the spool and its ledger. Used for mistakes; archive for used-up spools. */
+/**
+ * Deleting removes the spool and its ledger. Used for mistakes; archive for
+ * used-up spools. A spool that prints refer to cannot be deleted (the prints
+ * would lose their history), only archived.
+ */
 export async function deleteSpool(spoolId: string): Promise<ActionState> {
   const { workshop } = await requireWorkshop();
-  const result = await prisma.spool.deleteMany({ where: { id: spoolId, workshopId: workshop.id } });
-  if (result.count === 0) return { ok: false, error: "not_found" };
+  const spool = await prisma.spool.findFirst({
+    where: { id: spoolId, workshopId: workshop.id },
+    select: { id: true, _count: { select: { usages: true } } },
+  });
+  if (!spool) return { ok: false, error: "not_found" };
+  if (spool._count.usages > 0) return { ok: false, error: "spool_has_prints" };
+  await prisma.spool.delete({ where: { id: spool.id } });
   redirect("/spools");
 }
 
