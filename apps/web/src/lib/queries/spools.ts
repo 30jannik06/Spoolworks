@@ -9,8 +9,9 @@ import { prisma, type Prisma } from "@spoolworks/database";
  * without telling the two apart.
  */
 
-const spoolInclude = {
+export const spoolInclude = {
   product: { include: { brand: true } },
+  slot: { include: { unit: { include: { printer: { select: { id: true, name: true } } } } } },
 } satisfies Prisma.SpoolInclude;
 
 type SpoolRow = Prisma.SpoolGetPayload<{ include: typeof spoolInclude }>;
@@ -36,9 +37,20 @@ export type SpoolView = {
   purchasedOn: string | null;
   purchaseUrl: string | null;
   notes: string | null;
+  /** Where the spool is loaded; null means on the shelf. */
+  slot: SlotRef | null;
 };
 
-function toView(row: SpoolRow, thresholdG: number): SpoolView {
+/** A slot position as the UI labels it ("P2S · AMS 1 · Slot 2"). */
+export type SlotRef = {
+  printerId: string;
+  printerName: string;
+  unitPosition: number;
+  slotCount: number;
+  slotPosition: number;
+};
+
+export function toView(row: SpoolRow, thresholdG: number): SpoolView {
   return {
     id: row.id,
     shortCode: row.shortCode,
@@ -59,6 +71,15 @@ function toView(row: SpoolRow, thresholdG: number): SpoolView {
     purchasedOn: row.purchasedOn ? row.purchasedOn.toISOString().slice(0, 10) : null,
     purchaseUrl: row.purchaseUrl,
     notes: row.notes,
+    slot: row.slot
+      ? {
+          printerId: row.slot.unit.printer.id,
+          printerName: row.slot.unit.printer.name,
+          unitPosition: row.slot.unit.position,
+          slotCount: row.slot.unit.slotCount,
+          slotPosition: row.slot.position,
+        }
+      : null,
   };
 }
 
@@ -68,6 +89,8 @@ export type SpoolFilter = {
   colorHex?: string;
   low?: boolean;
   archived?: boolean;
+  /** Active spools not loaded in any slot. */
+  shelf?: boolean;
 };
 
 /** Reads the list filter from URL search params; unknown values are ignored. */
@@ -84,6 +107,7 @@ export function parseSpoolFilter(params: Record<string, string | string[] | unde
     colorHex: color && /^[0-9a-f]{6}$/.test(color) ? `#${color}` : undefined,
     low: one("low") === "1",
     archived: one("archived") === "1",
+    shelf: one("shelf") === "1",
   };
 }
 
@@ -93,6 +117,7 @@ export async function listSpools(workshopId: string, thresholdG: number, filter:
       workshopId,
       status: filter.archived ? "ARCHIVED" : { not: "ARCHIVED" },
       ...(filter.low ? { remainingG: { lte: thresholdG } } : {}),
+      ...(filter.shelf && !filter.archived ? { slot: { is: null } } : {}),
       product: {
         ...(filter.material ? { material: filter.material } : {}),
         ...(filter.brandId ? { brandId: filter.brandId } : {}),

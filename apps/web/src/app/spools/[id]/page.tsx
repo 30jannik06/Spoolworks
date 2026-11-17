@@ -1,5 +1,6 @@
 import { formatCents } from "@spoolworks/core";
 import { ExternalLink } from "lucide-react";
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 
@@ -47,14 +48,29 @@ async function SpoolDetail({ params }: { params: PageProps<"/spools/[id]">["para
       ? Math.round((spool.purchasePriceCents * 1000) / spool.netWeightG)
       : null;
 
-  const facts = [
+  const facts: { label: string; value: string; href?: string }[] = [
     { label: d.emptySpool, value: `${spool.emptySpoolWeightG} g` },
     { label: d.pricePerKg, value: pricePerKgCents !== null ? `${formatCents(pricePerKgCents)} €` : d.noValue },
     {
       label: d.purchased,
       value: spool.purchasedOn ? dateFormat.format(new Date(`${spool.purchasedOn}T00:00:00Z`)) : d.noValue,
     },
-    { label: d.location, value: spool.location ?? de.spools.shelf },
+    // The slot is shown next to the user's own location text, never instead of it.
+    ...(spool.slot
+      ? [
+          {
+            label: d.slot,
+            value: de.printers.place(
+              spool.slot.printerName,
+              spool.slot.unitPosition,
+              spool.slot.slotCount,
+              spool.slot.slotPosition,
+            ),
+            href: `/printers/${spool.slot.printerId}`,
+          },
+        ]
+      : []),
+    { label: d.location, value: spool.location ?? (spool.slot ? d.noValue : de.spools.shelf) },
     { label: d.code, value: spool.shortCode },
   ];
 
@@ -114,12 +130,23 @@ async function SpoolDetail({ params }: { params: PageProps<"/spools/[id]">["para
 
         <div className="space-y-4 lg:col-start-1 lg:row-start-2">
           <div className="grid grid-cols-2 gap-3 md:grid-cols-3">
-            {facts.map((fact) => (
-              <Tile key={fact.label}>
-                <Eyebrow>{fact.label}</Eyebrow>
-                <p className="figure mt-1.5 truncate text-base">{fact.value}</p>
-              </Tile>
-            ))}
+            {facts.map((fact) =>
+              fact.href ? (
+                <Link
+                  key={fact.label}
+                  href={fact.href}
+                  className="col-span-2 rounded-xl border bg-card p-4 transition-colors hover:bg-accent/60 md:col-span-1"
+                >
+                  <Eyebrow>{fact.label}</Eyebrow>
+                  <p className="mt-1.5 truncate text-base">{fact.value}</p>
+                </Link>
+              ) : (
+                <Tile key={fact.label}>
+                  <Eyebrow>{fact.label}</Eyebrow>
+                  <p className="figure mt-1.5 truncate text-base">{fact.value}</p>
+                </Tile>
+              ),
+            )}
             {spool.purchaseUrl && (
               <a
                 href={spool.purchaseUrl}

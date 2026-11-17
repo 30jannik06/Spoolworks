@@ -21,6 +21,7 @@ function hrefFor(filter: SpoolFilter, change: Partial<SpoolFilter>): string {
   if (next.colorHex) params.set("color", next.colorHex.slice(1));
   if (next.low) params.set("low", "1");
   if (next.archived) params.set("archived", "1");
+  if (next.shelf) params.set("shelf", "1");
   const query = params.toString();
   return query ? `/spools?${query}` : "/spools";
 }
@@ -45,7 +46,7 @@ function Chip({ href, active, children }: { href: string; active: boolean; child
  * and a filtered view can be bookmarked.
  */
 export function SpoolFilters({ filter, facets }: { filter: SpoolFilter; facets: Facets }) {
-  const none = !filter.material && !filter.brandId && !filter.colorHex && !filter.low && !filter.archived;
+  const none = !filter.material && !filter.brandId && !filter.colorHex && !filter.low && !filter.archived && !filter.shelf;
 
   return (
     <div className="space-y-2">
@@ -56,6 +57,9 @@ export function SpoolFilters({ filter, facets }: { filter: SpoolFilter; facets: 
         <Chip href={hrefFor(filter, { low: !filter.low, archived: false })} active={Boolean(filter.low)}>
           <span className="size-2 rounded-full bg-warning" aria-hidden="true" />
           {de.spools.filterLow}
+        </Chip>
+        <Chip href={hrefFor(filter, { shelf: !filter.shelf, archived: false })} active={Boolean(filter.shelf)}>
+          {de.spools.filterShelf}
         </Chip>
         {facets.materials.map((material) => (
           <Chip
@@ -75,7 +79,7 @@ export function SpoolFilters({ filter, facets }: { filter: SpoolFilter; facets: 
             {brand.name}
           </Chip>
         ))}
-        <Chip href={hrefFor(filter, { archived: !filter.archived, low: false })} active={Boolean(filter.archived)}>
+        <Chip href={hrefFor(filter, { archived: !filter.archived, low: false, shelf: false })} active={Boolean(filter.archived)}>
           {de.spools.filterArchived}
         </Chip>
       </div>
