@@ -41,6 +41,7 @@ export function TabBar() {
       {open && <QuickActions onClose={close} />}
       <nav
         aria-label={de.app.name}
+        data-tabbar=""
         className="fixed inset-x-0 bottom-0 z-[60] border-t bg-background/90 pb-[env(safe-area-inset-bottom)] backdrop-blur md:hidden"
       >
         <div className="grid h-16 grid-cols-5 items-center px-2">
