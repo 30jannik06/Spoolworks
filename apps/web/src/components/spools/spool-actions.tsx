@@ -6,6 +6,7 @@ import { useState, useTransition } from "react";
 
 import { deleteSpool, setSpoolArchived } from "@/app/spools/actions";
 import { Button } from "@/components/ui/button";
+import { errorText } from "@/lib/error-text";
 import { de } from "@/messages/de";
 
 const d = de.spoolDetail;
@@ -14,6 +15,7 @@ const d = de.spoolDetail;
 export function SpoolActions({ spoolId, archived }: { spoolId: string; archived: boolean }) {
   const [confirming, setConfirming] = useState(false);
   const [pending, startTransition] = useTransition();
+  const [error, setError] = useState<string>();
 
   return (
     <div className="space-y-3">
@@ -44,6 +46,11 @@ export function SpoolActions({ spoolId, archived }: { spoolId: string; archived:
           {d.delete}
         </Button>
       </div>
+      {error && (
+        <p className="text-sm text-destructive" role="alert">
+          {errorText(error)}
+        </p>
+      )}
       {confirming && (
         <div className="space-y-3 rounded-lg border border-destructive/40 bg-destructive/5 p-3" role="alertdialog">
           <p className="text-sm">{d.deleteConfirm}</p>
@@ -56,7 +63,15 @@ export function SpoolActions({ spoolId, archived }: { spoolId: string; archived:
               variant="destructive"
               className="h-11"
               disabled={pending}
-              onClick={() => startTransition(async () => void (await deleteSpool(spoolId)))}
+              onClick={() =>
+                startTransition(async () => {
+                  const result = await deleteSpool(spoolId);
+                  if (!result.ok) {
+                    setError(result.error);
+                    setConfirming(false);
+                  }
+                })
+              }
             >
               {d.deleteYes}
             </Button>

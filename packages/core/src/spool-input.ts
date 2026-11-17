@@ -16,7 +16,7 @@ const MAX_SPOOL_G = 10_000;
 const MAX_EMPTY_SPOOL_G = 2_000;
 
 const text = (max: number) => z.string().trim().max(max, "too_long");
-const optionalText = (max: number) =>
+export const optionalText = (max: number) =>
   z
     .string()
     .trim()
@@ -37,7 +37,7 @@ const grams = (max: number) =>
     })
     .pipe(z.number().int().min(0).max(max, "too_heavy"));
 
-const optionalGrams = (max: number) =>
+export const optionalGrams = (max: number) =>
   z
     .string()
     .optional()
@@ -64,7 +64,7 @@ const optionalCents = z
     return cents;
   });
 
-const optionalDate = z
+export const optionalDate = z
   .string()
   .optional()
   .transform((value, ctx) => {
@@ -76,7 +76,7 @@ const optionalDate = z
     return value;
   });
 
-const optionalUrl = z
+export const optionalUrl = z
   .string()
   .trim()
   .optional()
