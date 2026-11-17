@@ -19,9 +19,19 @@ export function Landing() {
       <Steps />
       <Cta />
       <footer className="border-t">
-        <div className="mx-auto flex max-w-6xl items-center gap-2 px-4 py-8 text-sm text-muted-foreground md:px-8">
-          <SpoolMark className="size-5" />
-          {t.footer}
+        <div className="mx-auto flex max-w-6xl flex-col gap-3 px-4 py-8 text-sm text-muted-foreground sm:flex-row sm:items-center sm:justify-between md:px-8">
+          <span className="flex items-center gap-2">
+            <SpoolMark className="size-5" />
+            {t.footer}
+          </span>
+          <a
+            href="https://github.com/OpenFilamentCollective/open-filament-database"
+            target="_blank"
+            rel="noreferrer"
+            className="text-xs underline-offset-4 hover:text-foreground hover:underline"
+          >
+            {t.catalogCredit}
+          </a>
         </div>
       </footer>
     </div>
