@@ -1,4 +1,8 @@
 {
   "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    // Node globals (crypto, URL, TextEncoder); browsers have the same ones.
+    "types": ["node"]
+  },
   "include": ["src"]
 }

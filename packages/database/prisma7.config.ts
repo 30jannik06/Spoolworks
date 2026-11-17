@@ -26,5 +26,10 @@ export default defineConfig({
   },
   datasource: {
     url: process.env["DIRECT_URL"] ?? process.env["DATABASE_URL"],
+    // Local `prisma dev` ships its own shadow database on a second port; without
+    // it, `migrate dev` would clone template1 (tables included) and fail.
+    ...(process.env["SHADOW_DATABASE_URL"]
+      ? { shadowDatabaseUrl: process.env["SHADOW_DATABASE_URL"] }
+      : {}),
   },
 });
