@@ -48,28 +48,24 @@ async function SpoolDetail({ params }: { params: PageProps<"/spools/[id]">["para
       ? Math.round((spool.purchasePriceCents * 1000) / spool.netWeightG)
       : null;
 
-  const facts: { label: string; value: string; href?: string }[] = [
+  const facts: { label: string; value: string; detail?: string; href?: string }[] = [
+    // The slot is shown next to the user's own location text, never instead of it.
+    ...(spool.slot
+      ? [
+          {
+            label: d.slot,
+            value: spool.slot.printerName,
+            detail: de.printers.unitPlace(spool.slot.unitPosition, spool.slot.slotCount, spool.slot.slotPosition),
+            href: `/printers/${spool.slot.printerId}`,
+          },
+        ]
+      : []),
     { label: d.emptySpool, value: `${spool.emptySpoolWeightG} g` },
     { label: d.pricePerKg, value: pricePerKgCents !== null ? `${formatCents(pricePerKgCents)} €` : d.noValue },
     {
       label: d.purchased,
       value: spool.purchasedOn ? dateFormat.format(new Date(`${spool.purchasedOn}T00:00:00Z`)) : d.noValue,
     },
-    // The slot is shown next to the user's own location text, never instead of it.
-    ...(spool.slot
-      ? [
-          {
-            label: d.slot,
-            value: de.printers.place(
-              spool.slot.printerName,
-              spool.slot.unitPosition,
-              spool.slot.slotCount,
-              spool.slot.slotPosition,
-            ),
-            href: `/printers/${spool.slot.printerId}`,
-          },
-        ]
-      : []),
     { label: d.location, value: spool.location ?? (spool.slot ? d.noValue : de.spools.shelf) },
     { label: d.code, value: spool.shortCode },
   ];
@@ -139,6 +135,7 @@ async function SpoolDetail({ params }: { params: PageProps<"/spools/[id]">["para
                 >
                   <Eyebrow>{fact.label}</Eyebrow>
                   <p className="mt-1.5 truncate text-base">{fact.value}</p>
+                  {fact.detail && <p className="figure truncate text-xs text-muted-foreground">{fact.detail}</p>}
                 </Link>
               ) : (
                 <Tile key={fact.label}>

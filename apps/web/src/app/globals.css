@@ -134,3 +134,9 @@
     padding-bottom: calc(5rem + env(safe-area-inset-bottom));
   }
 }
+
+/* The tab bar sits above the quick-actions sheet (z-60), but a modal dialog
+   (z-50) must cover it, so drop it below while one is open. */
+body:has([data-slot="dialog-overlay"]) [data-tabbar] {
+  z-index: 40;
+}
