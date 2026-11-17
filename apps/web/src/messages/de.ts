@@ -23,6 +23,12 @@ export const de = {
     settings: "Einstellungen",
     back: "Zurück",
   },
+  form: {
+    pickDate: "Datum wählen",
+    clearDate: "Datum entfernen",
+    colorPresets: "Typische Farben",
+    colorHex: "Farbcode",
+  },
   materials: {
     PLA: "PLA",
     PETG: "PETG",

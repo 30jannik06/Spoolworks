@@ -6,6 +6,8 @@ import Link from "next/link";
 import { useActionState, useEffect, useState, useTransition } from "react";
 
 import { findProducts } from "@/app/spools/actions";
+import { ColorPicker } from "@/components/form/color-picker";
+import { DatePicker } from "@/components/form/date-picker";
 import { Field, Select, inputClass } from "@/components/form/field";
 import { Segmented } from "@/components/segmented";
 import { SpoolRing } from "@/components/spool-ring";
@@ -96,7 +98,7 @@ export function SpoolForm(props: Props) {
             />
           </Field>
           <Field label={f.purchasedOn} htmlFor="purchasedOn" error={errors["purchasedOn"]}>
-            <Input id="purchasedOn" name="purchasedOn" type="date" defaultValue={defaults.purchasedOn} className={inputClass} />
+            <DatePicker id="purchasedOn" name="purchasedOn" defaultValue={defaults.purchasedOn} disableFuture />
           </Field>
         </div>
         <Field label={f.purchaseUrl} htmlFor="purchaseUrl" error={errors["purchaseUrl"]}>
@@ -159,7 +161,7 @@ function ProductSection({
   const [results, setResults] = useState<ProductOption[]>([]);
   const [picked, setPicked] = useState<ProductOption | null>(null);
   const [searching, startSearch] = useTransition();
-  const [colorHex, setColorHex] = useState("#4a7bc2");
+  const [colorName, setColorName] = useState("");
 
   // Debounced catalog search through a server action.
   useEffect(() => {
@@ -271,26 +273,22 @@ function ProductSection({
               <option value="2850">2,85 mm</option>
             </Select>
           </Field>
-          <Field label={f.colorName} htmlFor="colorName" error={errors["product.colorName"]}>
-            <Input id="colorName" name="product.colorName" placeholder={f.colorNamePlaceholder} className={inputClass} />
-          </Field>
           <Field label={f.colorHex} htmlFor="colorHex" error={errors["product.colorHex"]}>
-            <div className="flex gap-2">
-              <input
-                type="color"
-                aria-label={f.colorHex}
-                value={colorHex}
-                onChange={(event) => setColorHex(event.target.value)}
-                className="h-11 w-14 shrink-0 cursor-pointer rounded-lg border bg-transparent p-1"
-              />
-              <Input
-                id="colorHex"
-                name="product.colorHex"
-                value={colorHex}
-                onChange={(event) => setColorHex(event.target.value)}
-                className={`${inputClass} figure`}
-              />
-            </div>
+            <ColorPicker
+              id="colorHex"
+              name="product.colorHex"
+              onPresetPicked={(name) => setColorName((current) => (current.trim() === "" ? name : current))}
+            />
+          </Field>
+          <Field label={f.colorName} htmlFor="colorName" error={errors["product.colorName"]}>
+            <Input
+              id="colorName"
+              name="product.colorName"
+              placeholder={f.colorNamePlaceholder}
+              value={colorName}
+              onChange={(event) => setColorName(event.target.value)}
+              className={inputClass}
+            />
           </Field>
           <Field label={f.netWeight} htmlFor="netWeightG" error={errors["product.netWeightG"]}>
             <Input id="netWeightG" name="product.netWeightG" inputMode="numeric" defaultValue="1000" className={inputClass} />
