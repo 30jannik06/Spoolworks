@@ -2,6 +2,7 @@ import { Suspense } from "react";
 
 import { Dashboard } from "@/components/home/dashboard";
 import { Landing } from "@/components/home/landing";
+import { getStockStats } from "@/lib/queries/spools";
 import { getSession, getWorkshopForUser } from "@/lib/session";
 import { de } from "@/messages/de";
 
@@ -20,11 +21,13 @@ async function Home() {
     return <Landing />;
   }
   const workshop = await getWorkshopForUser(session.user.id);
+  const stock = await getStockStats(workshop.id, workshop.lowStockThresholdG);
   return (
     <Dashboard
       userName={session.user.name}
       workshopName={workshop.name}
       lowStockThresholdG={workshop.lowStockThresholdG}
+      stock={stock}
     />
   );
 }

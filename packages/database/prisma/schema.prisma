@@ -27,6 +27,8 @@ model User {
   accounts Account[]
   workshop Workshop?
 
+  createdProducts FilamentProduct[]
+
   @@map("user")
 }
 
@@ -99,4 +101,125 @@ model Workshop {
   updatedAt          DateTime @updatedAt
 
   owner User @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+
+  spools Spool[]
+}
+
+// ─── Catalog (global, product facts only) ────────────────────────────────────
+// No ownership, prices or quantities live here. Later price comparison hangs
+// offers and price history off FilamentProduct, never off an owned Spool.
+
+enum Material {
+  PLA
+  PETG
+  ABS
+  ASA
+  TPU
+  PA
+  PC
+  PET
+  HIPS
+  PVA
+  OTHER
+}
+
+model Brand {
+  id        String   @id @default(cuid())
+  name      String
+  /// Lowercased, trimmed name: "Bambu Lab" and "bambu lab " are one brand.
+  nameKey   String   @unique
+  createdAt DateTime @default(now())
+
+  products FilamentProduct[]
+}
+
+model FilamentProduct {
+  id           String   @id @default(cuid())
+  brandId      String
+  /// Product line as the brand names it, e.g. "PLA Basic", "PLA Matte".
+  productLine  String
+  material     Material
+  colorName    String
+  /// "#rrggbb", lowercase.
+  colorHex     String
+  /// 1.75 mm = 1750. Integer micrometres, no floats.
+  diameterUm   Int      @default(1750)
+  /// Nominal filament weight on a full spool, e.g. 1000.
+  netWeightG   Int
+  /// Typical empty-spool weight; pre-fills new spools of this product.
+  spoolWeightG Int?
+  ean          String?  @unique
+  /// Who added the product. Only they may edit it until there is moderation.
+  createdById  String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  brand     Brand   @relation(fields: [brandId], references: [id], onDelete: Restrict)
+  createdBy User?   @relation(fields: [createdById], references: [id], onDelete: SetNull)
+  spools    Spool[]
+
+  @@unique([brandId, productLine, material, colorName, diameterUm, netWeightG])
+  @@index([material])
+}
+
+// ─── Inventory (owned by a workshop) ─────────────────────────────────────────
+
+enum SpoolStatus {
+  ACTIVE
+  EMPTY
+  ARCHIVED
+}
+
+model Spool {
+  id                 String      @id @default(cuid())
+  workshopId         String
+  productId          String
+  /// Fixed short code for the label URL /s/<code> (QR and NFC). Never changes.
+  shortCode          String      @unique
+  emptySpoolWeightG  Int
+  /// Cache of the ledger result; rewritten in the same transaction as every
+  /// ledger change. Never written directly.
+  remainingG         Int
+  purchasePriceCents Int?
+  purchasedOn        DateTime?   @db.Date
+  purchaseUrl        String?
+  location           String?
+  notes              String?
+  status             SpoolStatus @default(ACTIVE)
+  createdAt          DateTime    @default(now())
+  updatedAt          DateTime    @updatedAt
+
+  workshop Workshop           @relation(fields: [workshopId], references: [id], onDelete: Cascade)
+  product  FilamentProduct    @relation(fields: [productId], references: [id], onDelete: Restrict)
+  ledger   SpoolLedgerEntry[]
+
+  @@index([workshopId, status])
+  @@index([productId])
+}
+
+enum LedgerKind {
+  /// Anchor: net weight when the spool was added.
+  INITIAL
+  /// Anchor: net weight from a weighing (gross minus empty spool).
+  WEIGHING
+  /// Anchor: net weight set by hand.
+  CORRECTION
+  /// Consumption by a print (phase 3). Counts only while active.
+  PRINT
+}
+
+/// Remaining weight = value of the latest anchor minus all active PRINT
+/// entries with a higher seq. A weighing therefore wins over older prints.
+/// See computeRemaining() in @spoolworks/core.
+model SpoolLedgerEntry {
+  seq       Int        @id @default(autoincrement())
+  spoolId   String
+  kind      LedgerKind
+  valueG    Int
+  active    Boolean    @default(true)
+  createdAt DateTime   @default(now())
+
+  spool Spool @relation(fields: [spoolId], references: [id], onDelete: Cascade)
+
+  @@index([spoolId, seq])
 }
