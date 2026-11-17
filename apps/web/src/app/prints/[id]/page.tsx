@@ -85,9 +85,9 @@ async function PrintDetail({ params }: { params: PageProps<"/prints/[id]">["para
         </Tile>
 
         <div className="space-y-4 lg:col-start-1 lg:row-start-1">
-          <div className="grid grid-cols-3 gap-3">
-            {facts.map((fact) => (
-              <Tile key={fact.label}>
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+            {facts.map((fact, index) => (
+              <Tile key={fact.label} className={index === 2 ? "col-span-2 sm:col-span-1" : undefined}>
                 <Eyebrow>{fact.label}</Eyebrow>
                 <p className="figure mt-1.5 truncate text-base">{fact.value}</p>
               </Tile>
