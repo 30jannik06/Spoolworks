@@ -1,7 +1,9 @@
 import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import { Suspense } from "react";
 
-import { SiteHeader } from "@/components/layout/site-header";
+import { SessionTabBar, SiteHeader } from "@/components/layout/site-header";
+import { ThemeProvider } from "@/components/theme/theme-provider";
 import { de } from "@/messages/de";
 
 import "./globals.css";
@@ -18,14 +20,28 @@ export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
   viewportFit: "cover",
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#f4f3ef" },
+    { media: "(prefers-color-scheme: dark)", color: "#0e0e0d" },
+  ],
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="de" className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}>
+    // next-themes sets the class on <html> before hydration.
+    <html
+      lang="de"
+      suppressHydrationWarning
+      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+    >
       <body className="flex min-h-full flex-col bg-background text-foreground">
-        <SiteHeader />
-        <main className="mx-auto w-full max-w-2xl flex-1 px-4 py-6">{children}</main>
+        <ThemeProvider>
+          <SiteHeader />
+          <main className="pb-tabbar mx-auto w-full max-w-2xl flex-1 px-4 pt-5">{children}</main>
+          <Suspense fallback={null}>
+            <SessionTabBar />
+          </Suspense>
+        </ThemeProvider>
       </body>
     </html>
   );

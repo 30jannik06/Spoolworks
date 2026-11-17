@@ -1,21 +1,30 @@
 import { Suspense } from "react";
 
 import { AuthForm } from "@/components/auth/auth-form";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Tile } from "@/components/tile";
 import { de } from "@/messages/de";
 
-export function AuthCard({ title, mode }: { title: string; mode: "login" | "register" }) {
+export function AuthCard({
+  title,
+  subtitle,
+  mode,
+}: {
+  title: string;
+  subtitle: string;
+  mode: "login" | "register";
+}) {
   return (
-    <Card className="mx-auto w-full max-w-sm">
-      <CardHeader>
-        <CardTitle className="text-xl">{title}</CardTitle>
-      </CardHeader>
-      <CardContent>
+    <div className="mx-auto w-full max-w-sm space-y-5 py-4">
+      <div className="space-y-1">
+        <h1 className="text-2xl font-medium tracking-tight">{title}</h1>
+        <p className="text-sm text-muted-foreground">{subtitle}</p>
+      </div>
+      <Tile className="p-5">
         {/* useSearchParams() reads the request, so it needs a boundary. */}
         <Suspense fallback={<p className="text-sm text-muted-foreground">{de.common.loading}</p>}>
           <AuthForm mode={mode} />
         </Suspense>
-      </CardContent>
-    </Card>
+      </Tile>
+    </div>
   );
 }
