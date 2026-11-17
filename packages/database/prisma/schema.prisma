@@ -104,6 +104,7 @@ model Workshop {
 
   spools   Spool[]
   printers Printer[]
+  prints   Print[]
 }
 
 // ─── Catalog (global, product facts only) ────────────────────────────────────
@@ -204,6 +205,9 @@ model Spool {
   ledger   SpoolLedgerEntry[]
   /// The AMS slot this spool is loaded in; none means it is on the shelf.
   slot     AmsSlot?
+  /// Prints that used this spool. The app refuses to delete a spool with prints
+  /// (archive it instead); the database cascades so deleting a workshop works.
+  usages   PrintUsage[]
 
   @@index([workshopId, status])
   @@index([productId])
@@ -229,9 +233,12 @@ model SpoolLedgerEntry {
   kind      LedgerKind
   valueG    Int
   active    Boolean    @default(true)
+  /// Set for PRINT entries: the print usage this consumption belongs to.
+  usageId   String?    @unique
   createdAt DateTime   @default(now())
 
-  spool Spool @relation(fields: [spoolId], references: [id], onDelete: Cascade)
+  spool Spool       @relation(fields: [spoolId], references: [id], onDelete: Cascade)
+  usage PrintUsage? @relation(fields: [usageId], references: [id], onDelete: Cascade)
 
   @@index([spoolId, seq])
 }
@@ -249,6 +256,7 @@ model Printer {
 
   workshop Workshop  @relation(fields: [workshopId], references: [id], onDelete: Cascade)
   units    AmsUnit[]
+  prints   Print[]
 
   @@index([workshopId])
 }
@@ -281,4 +289,59 @@ model AmsSlot {
   spool Spool?  @relation(fields: [spoolId], references: [id], onDelete: SetNull)
 
   @@unique([unitId, position])
+}
+
+// ─── Prints (owned by a workshop) ─────────────────────────────────────────────
+
+enum PrintStatus {
+  /// Not printed yet: no consumption is booked.
+  PLANNED
+  PRINTED
+  /// Failed prints still used filament and deduct what was entered.
+  FAILED
+}
+
+enum ModelSource {
+  MAKERWORLD
+  PRINTABLES
+  THINGIVERSE
+  OTHER
+}
+
+model Print {
+  id          String       @id @default(cuid())
+  workshopId  String
+  printerId   String?
+  name        String
+  status      PrintStatus  @default(PRINTED)
+  printedOn   DateTime?    @db.Date
+  durationMin Int?
+  modelUrl    String?
+  modelSource ModelSource?
+  notes       String?
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  workshop Workshop     @relation(fields: [workshopId], references: [id], onDelete: Cascade)
+  printer  Printer?     @relation(fields: [printerId], references: [id], onDelete: SetNull)
+  usages   PrintUsage[]
+
+  @@index([workshopId, printedOn])
+}
+
+/// Grams one print took from one spool. Its PRINT ledger entry exists only
+/// while the print is printed or failed, and is updated in place on edits so
+/// it keeps its position relative to weighings.
+model PrintUsage {
+  id      String @id @default(cuid())
+  printId String
+  spoolId String
+  grams   Int
+
+  print       Print             @relation(fields: [printId], references: [id], onDelete: Cascade)
+  spool       Spool             @relation(fields: [spoolId], references: [id], onDelete: Cascade)
+  ledgerEntry SpoolLedgerEntry?
+
+  @@unique([printId, spoolId])
+  @@index([spoolId])
 }

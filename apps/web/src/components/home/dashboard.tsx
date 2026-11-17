@@ -6,6 +6,7 @@ import { SpoolRing } from "@/components/spool-ring";
 import { Eyebrow, Figure, Tile } from "@/components/tile";
 import { Button } from "@/components/ui/button";
 import type { PrinterView } from "@/lib/queries/printers";
+import type { PrintView } from "@/lib/queries/prints";
 import type { SpoolView } from "@/lib/queries/spools";
 import { de } from "@/messages/de";
 
@@ -25,12 +26,14 @@ export function Dashboard({
   lowStockThresholdG,
   stock,
   printer,
+  prints,
 }: {
   userName: string;
   workshopName: string;
   lowStockThresholdG: number;
   stock: { totalG: number; count: number; low: SpoolView[] };
   printer: PrinterView | null;
+  prints: { count: number; latest: PrintView | null };
 }) {
   return (
     <div className="space-y-5 md:space-y-6">
@@ -80,10 +83,15 @@ export function Dashboard({
             </p>
             <p className="mt-1 text-xs text-muted-foreground">{de.home.lowStockThreshold(lowStockThresholdG)}</p>
           </Tile>
-          <Tile className="md:p-6">
+          <Link href="/prints" className="rounded-xl border bg-card p-4 transition-colors hover:bg-accent/60 md:p-6">
             <Eyebrow>{de.home.printsEyebrow}</Eyebrow>
-            <p className="figure mt-2 text-xl md:text-2xl">{de.home.printsEmpty}</p>
-          </Tile>
+            <p className="figure mt-2 text-xl md:text-2xl">{prints.count}</p>
+            {prints.latest && (
+              <p className="mt-1 truncate text-xs text-muted-foreground">
+                {de.home.printsLast}: {prints.latest.name}
+              </p>
+            )}
+          </Link>
         </div>
 
         {stock.low.length > 0 && (
