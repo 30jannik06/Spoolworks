@@ -14,7 +14,7 @@ export function AuthCard({
   mode: "login" | "register";
 }) {
   return (
-    <div className="mx-auto w-full max-w-sm space-y-5 py-4">
+    <div className="mx-auto w-full max-w-sm space-y-5 px-4 py-12 md:py-20">
       <div className="space-y-1">
         <h1 className="text-2xl font-medium tracking-tight">{title}</h1>
         <p className="text-sm text-muted-foreground">{subtitle}</p>

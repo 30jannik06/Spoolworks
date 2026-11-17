@@ -2,7 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { Suspense } from "react";
 
-import { SessionTabBar, SiteHeader } from "@/components/layout/site-header";
+import { AppFrame, AppFrameFallback } from "@/components/layout/app-frame";
 import { ThemeProvider } from "@/components/theme/theme-provider";
 import { de } from "@/messages/de";
 
@@ -36,10 +36,9 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     >
       <body className="flex min-h-full flex-col bg-background text-foreground">
         <ThemeProvider>
-          <SiteHeader />
-          <main className="pb-tabbar mx-auto w-full max-w-2xl flex-1 px-4 pt-5">{children}</main>
-          <Suspense fallback={null}>
-            <SessionTabBar />
+          {/* The frame depends on the session (sidebar vs. guest header), so it streams. */}
+          <Suspense fallback={<AppFrameFallback />}>
+            <AppFrame>{children}</AppFrame>
           </Suspense>
         </ThemeProvider>
       </body>
