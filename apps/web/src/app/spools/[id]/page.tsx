@@ -171,8 +171,14 @@ async function SpoolDetail({ params }: { params: PageProps<"/spools/[id]">["para
               <ul className="mt-2 divide-y">
                 {ledger.map((entry) => (
                   <li key={entry.seq} className="flex items-center justify-between gap-3 px-4 py-3 text-sm">
-                    <span className={cn(!entry.active && "text-muted-foreground line-through")}>
-                      {d.ledger[entry.kind]}
+                    <span className={cn("min-w-0 truncate", !entry.active && "text-muted-foreground line-through")}>
+                      {entry.print ? (
+                        <Link href={`/prints/${entry.print.id}`} className="underline-offset-4 hover:underline">
+                          {d.ledger[entry.kind]}: {entry.print.name}
+                        </Link>
+                      ) : (
+                        d.ledger[entry.kind]
+                      )}
                     </span>
                     <span className="flex items-baseline gap-3">
                       <span className="text-xs text-muted-foreground">{dateTimeFormat.format(entry.createdAt)}</span>

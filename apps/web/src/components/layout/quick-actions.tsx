@@ -16,9 +16,9 @@ type Action = {
 };
 
 const ACTIONS: Action[] = [
+  { label: de.quickActions.logPrint, hint: de.quickActions.logPrintHint, icon: ReceiptText, href: "/prints/new" },
   { label: de.quickActions.weighSpool, hint: de.quickActions.weighSpoolHint, icon: Scale, href: "/weigh" },
   { label: de.quickActions.addSpool, hint: de.quickActions.addSpoolHint, icon: PackagePlus, href: "/spools/new" },
-  { label: de.quickActions.logPrint, hint: de.quickActions.logPrintHint, icon: ReceiptText, phase: 3 },
 ];
 
 /**
