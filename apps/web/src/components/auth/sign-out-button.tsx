@@ -1,9 +1,9 @@
 "use client";
 
+import { LogOut } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useTransition } from "react";
 
-import { Button } from "@/components/ui/button";
 import { signOut } from "@/lib/auth-client";
 import { de } from "@/messages/de";
 
@@ -12,10 +12,11 @@ export function SignOutButton() {
   const [pending, startTransition] = useTransition();
 
   return (
-    <Button
-      variant="ghost"
-      className="h-11 px-4"
-      disabled={pending}
+    <button
+      type="button"
+      aria-label={de.nav.signOut}
+      title={de.nav.signOut}
+      aria-busy={pending}
       onClick={() =>
         startTransition(async () => {
           await signOut();
@@ -23,8 +24,9 @@ export function SignOutButton() {
           router.refresh();
         })
       }
+      className="flex size-11 items-center justify-center rounded-lg border text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
     >
-      {de.nav.signOut}
-    </Button>
+      <LogOut className="size-[18px]" aria-hidden="true" />
+    </button>
   );
 }
