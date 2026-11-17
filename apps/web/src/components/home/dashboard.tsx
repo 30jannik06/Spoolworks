@@ -1,9 +1,11 @@
 import { ArrowRight, Plus, Scale, Sparkles } from "lucide-react";
 import Link from "next/link";
 
+import { AmsStrip } from "@/components/printers/ams-strip";
 import { SpoolRing } from "@/components/spool-ring";
 import { Eyebrow, Figure, Tile } from "@/components/tile";
 import { Button } from "@/components/ui/button";
+import type { PrinterView } from "@/lib/queries/printers";
 import type { SpoolView } from "@/lib/queries/spools";
 import { de } from "@/messages/de";
 
@@ -14,19 +16,21 @@ function kilograms(grams: number): string {
 
 /**
  * The signed-in home: stock, low-stock spools and shortcuts. One column on
- * phones, a 3-column grid from `md` up. Printers and prints arrive in later
- * phases and show their empty state until then.
+ * phones, a 3-column grid from `md` up. The AMS tile shows the first printer;
+ * prints arrive in Phase 3 and show their empty state until then.
  */
 export function Dashboard({
   userName,
   workshopName,
   lowStockThresholdG,
   stock,
+  printer,
 }: {
   userName: string;
   workshopName: string;
   lowStockThresholdG: number;
   stock: { totalG: number; count: number; low: SpoolView[] };
+  printer: PrinterView | null;
 }) {
   return (
     <div className="space-y-5 md:space-y-6">
@@ -114,16 +118,35 @@ export function Dashboard({
         )}
 
         <Tile className="md:col-span-2 md:p-6">
-          <Eyebrow>{de.home.amsEyebrow}</Eyebrow>
-          <div className="mt-4 grid grid-cols-4 gap-2 md:max-w-md">
-            {[1, 2, 3, 4].map((slot) => (
-              <div key={slot} className="flex flex-col items-center gap-1.5">
-                <SpoolRing fraction={0} size={52} thickness={6} />
-                <span className="figure text-[11px] text-muted-foreground">0{slot}</span>
-              </div>
-            ))}
+          <div className="flex items-center justify-between gap-3">
+            <Eyebrow>{printer ? `${de.home.amsEyebrow} · ${printer.name}` : de.home.amsEyebrow}</Eyebrow>
+            {printer && (
+              <Link
+                href={`/printers/${printer.id}`}
+                className="-my-2 inline-flex min-h-11 items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
+              >
+                {de.home.amsOpen}
+                <ArrowRight className="size-4" aria-hidden="true" />
+              </Link>
+            )}
           </div>
-          <p className="mt-4 text-sm text-muted-foreground">{de.home.amsEmpty}</p>
+          {printer && printer.units.length > 0 ? (
+            <div className="mt-4 md:max-w-lg">
+              <AmsStrip units={printer.units} size={52} />
+            </div>
+          ) : printer ? (
+            <p className="mt-4 text-sm text-muted-foreground">{de.home.amsNoUnits}</p>
+          ) : (
+            <div className="mt-4 flex flex-wrap items-center gap-3">
+              <p className="text-sm text-muted-foreground">{de.home.amsEmpty}</p>
+              <Button asChild variant="outline" className="h-11">
+                <Link href="/printers/new">
+                  <Plus aria-hidden="true" />
+                  {de.home.amsAddPrinter}
+                </Link>
+              </Button>
+            </div>
+          )}
         </Tile>
 
         <Tile className="flex gap-3 md:p-6">
