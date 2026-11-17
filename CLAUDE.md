@@ -33,6 +33,8 @@ pnpm build            # needs DATABASE_URL set, but does not connect
 
 One `.env` at the **repo root** (copy `.env.example`). Prisma 7 does not load env files itself: `packages/database/prisma7.config.ts` and `apps/web/next.config.ts` both load the root file explicitly. On Vercel the platform env is used.
 
+**Local database without Docker or Neon:** `pnpm --filter @spoolworks/database exec prisma dev start spoolworks` (first time: `prisma dev --name spoolworks`). `prisma dev ls` shows the direct TCP URL (`postgres://postgres:postgres@localhost:<port>/template1?sslmode=disable`); use it for both `DATABASE_URL` and `DIRECT_URL`. Stop with `prisma dev stop spoolworks`. `.claude/launch.json` starts the web dev server for the browser preview.
+
 - App → `DATABASE_URL`, Neon **pooled** (`-pooler` host), via `@prisma/adapter-pg`.
 - Prisma CLI → `DIRECT_URL`, non-pooled. `migrate` takes a session-level advisory lock that leaks through PgBouncer (P1002).
 
