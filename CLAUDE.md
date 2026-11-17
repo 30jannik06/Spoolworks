@@ -33,7 +33,7 @@ pnpm build            # needs DATABASE_URL set, but does not connect
 
 One `.env` at the **repo root** (copy `.env.example`). Prisma 7 does not load env files itself: `packages/database/prisma7.config.ts` and `apps/web/next.config.ts` both load the root file explicitly. On Vercel the platform env is used.
 
-**Local database without Docker or Neon:** `pnpm --filter @spoolworks/database exec prisma dev start spoolworks` (first time: `prisma dev --name spoolworks`). `prisma dev ls` shows the direct TCP URL (`postgres://postgres:postgres@localhost:<port>/template1?sslmode=disable`); use it for both `DATABASE_URL` and `DIRECT_URL`. Stop with `prisma dev stop spoolworks`. `.claude/launch.json` starts the web dev server for the browser preview.
+**Local database without Docker or Neon:** `pnpm --filter @spoolworks/database exec prisma dev start spoolworks` (first time: `prisma dev --name spoolworks`). `prisma dev ls` shows the direct TCP URL (`postgres://postgres:postgres@localhost:<port>/template1?sslmode=disable`); use it for both `DATABASE_URL` and `DIRECT_URL`, and set `DATABASE_POOL_MAX=1` (it handles one connection at a time; concurrent queries otherwise fail with `08P01`). Stop with `prisma dev stop spoolworks`. `.claude/launch.json` starts the web dev server for the browser preview.
 
 - App → `DATABASE_URL`, Neon **pooled** (`-pooler` host), via `@prisma/adapter-pg`.
 - Prisma CLI → `DIRECT_URL`, non-pooled. `migrate` takes a session-level advisory lock that leaks through PgBouncer (P1002).
@@ -49,6 +49,16 @@ Vercel project with Root Directory `apps/web`; `apps/web/vercel.json` pins `fra1
 - **Next.js 16.4 with `cacheComponents`.** Anything that reads the request (session, `searchParams`, uncached DB reads) must render inside `<Suspense>`. Keep session reads out of layout top level.
 - **Better Auth 1.7**, email + password. Map `error.code` through `lib/auth-errors.ts`; never render `error.message`.
 - **shadcn/ui** (`radix-nova`), utility `cn` from the `cn` package. Add components with `pnpm dlx shadcn@latest add <name>` in `apps/web`, don't hand-edit `components/ui/`.
+
+## Design
+
+Agreed direction (2026-11-17): near-black (`#0e0e0d`) / warm paper (`#f4f3ef`) backgrounds, hairline-bordered tiles, **tight corners** (`--radius` 6px; tiles `rounded-xl` ≈ 8px; the user explicitly does not want an over-rounded "standard AI" look), one warm accent (amber, `bg-primary`), orange `warning` only for low stock. Filament colours are the only other colour on screen (rings, dots).
+
+- Light and dark via `next-themes` (`class` on `<html>`, default `system`). Use tokens (`bg-card`, `text-muted-foreground`, `bg-primary`), never raw colours.
+- Building blocks in `components/tile.tsx`: `Tile` (surface), `Eyebrow` (small spaced uppercase label), `Figure` (big mono number + unit). Utilities `.eyebrow`, `.figure`, `.pb-tabbar` in `globals.css`.
+- Signed-in pages sit above a fixed bottom tab bar with a centre "+" (quick actions). Content must keep `pb-tabbar` room.
+- Planned components for later phases: segmented pill control, spool ring, numeric keypad for weighing.
+- No decorative fake data: empty states say what's missing.
 
 ## Conventions
 
