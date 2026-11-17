@@ -21,6 +21,19 @@ import { de } from "@/messages/de";
 
 const f = de.spoolForm;
 
+/** "Bambu Lab · PLA · 1000 g", plus diameter when not 1.75 mm and a note when no longer sold. */
+function productMeta(product: ProductOption): string {
+  return [
+    product.brand,
+    de.materials[product.material],
+    `${product.netWeightG} g`,
+    product.diameterUm !== 1750 ? f.diameterShort(product.diameterUm) : null,
+    product.discontinued ? f.discontinued : null,
+  ]
+    .filter(Boolean)
+    .join(" · ");
+}
+
 type Defaults = {
   emptySpoolWeightG?: number;
   purchasePrice?: string;
@@ -196,7 +209,7 @@ function ProductSection({
                 {picked.productLine} {picked.colorName}
               </p>
               <p className="truncate text-xs text-muted-foreground">
-                {picked.brand} · {de.materials[picked.material]} · {picked.netWeightG} g
+                {productMeta(picked)}
               </p>
             </div>
             <Button type="button" variant="outline" className="h-10" onClick={() => setPicked(null)}>
@@ -239,7 +252,7 @@ function ProductSection({
                           {product.productLine} {product.colorName}
                         </span>
                         <span className="block truncate text-xs text-muted-foreground">
-                          {product.brand} · {de.materials[product.material]} · {product.netWeightG} g
+                          {productMeta(product)}
                         </span>
                       </span>
                       <Check className="size-4 text-muted-foreground" aria-hidden="true" />
