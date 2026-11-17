@@ -18,6 +18,8 @@ export const de = {
     prints: "Drucke",
     quickActions: "Schnellaktionen",
     close: "Schließen",
+    new: "Neu",
+    workshop: "Werkstatt",
   },
   quickActions: {
     title: "Was möchtest du tun?",
@@ -35,16 +37,56 @@ export const de = {
     dark: "Dunkel",
     system: "System",
   },
-  home: {
-    landingEyebrow: "Für 3D-Druck-Werkstätten",
-    landingTitle: "Dein Filament, deine Drucke, ein Ort.",
-    landingBody:
-      "Jeder Druck weiß, welche Spulen er verbraucht hat. Das Lager rechnet den Rest automatisch runter.",
-    landingPoints: [
-      "Restgewicht pro Spule, automatisch oder per Waage",
-      "AMS-Slots auf einen Blick",
-      "Druck-Galerie mit Verbrauch und Fotos",
+  landing: {
+    eyebrow: "Für 3D-Druck-Werkstätten",
+    title: "Dein Filament. Deine Drucke. Ein Ort.",
+    body: "Jeder Druck weiß, welche Spulen er verbraucht hat. SpoolWorks rechnet den Rest automatisch runter, damit dir mitten im Druck nichts ausgeht.",
+    primaryCta: "Werkstatt anlegen",
+    secondaryCta: "Anmelden",
+    privacyNote: "Alles privat. Teilen nur, wenn du es einschaltest.",
+    preview: {
+      badge: "Beispiel",
+      stock: "Bestand",
+      stockValue: "8,42",
+      stockUnit: "kg",
+      stockDelta: "−1,2 kg diesen Monat",
+      ams: "AMS 1 · P2S",
+      lowStock: "PLA Matte Blau ist fast leer",
+      lastPrint: "Letzter Druck",
+      lastPrintName: "Kabelhalter",
+      lastPrintMeta: "2 Spulen · 46 g",
+    },
+    featuresEyebrow: "Was SpoolWorks kann",
+    featuresTitle: "Gebaut für die Werkbank, nicht fürs Büro.",
+    features: [
+      {
+        title: "Restgewicht, das sich selbst rechnet",
+        body: "Drucke buchen ihren Verbrauch ab. Oder du wiegst die Spule, das Leergewicht wird abgezogen.",
+      },
+      {
+        title: "AMS auf einen Blick",
+        body: "Welche Spule steckt in welchem Slot, was liegt im Regal. Ein Tipp, und die Spule ist umgesteckt.",
+      },
+      {
+        title: "Etikett mit QR und NFC",
+        body: "Jede Spule bekommt eine feste Adresse. Handy dranhalten, Gewicht eintragen, fertig.",
+      },
+      {
+        title: "Galerie, die du teilen kannst",
+        body: "Fotos, Modell-Link und Verbrauch pro Druck. Öffentlich nur per Schalter, dein Lager bleibt privat.",
+      },
     ],
+    stepsEyebrow: "So funktioniert's",
+    steps: [
+      { title: "Spulen anlegen", body: "Produkt wählen, Leergewicht und Preis eintragen." },
+      { title: "Drucken und buchen", body: "Pro Druck eintragen, welche Spule wie viel Gramm gebraucht hat." },
+      { title: "Rest im Blick", body: "SpoolWorks warnt dich, bevor eine Spule leer ist." },
+    ],
+    ctaTitle: "Bereit für deine Werkstatt?",
+    ctaBody: "Ein Konto, eine Werkstatt. Deine Daten bleiben privat.",
+    footer: "SpoolWorks · Filament-Lager und Druck-Galerie",
+  },
+  home: {
     greeting: (name: string) => `Hallo ${name}`,
     stockEyebrow: "Bestand",
     stockEmpty: "Noch keine Spulen",
