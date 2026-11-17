@@ -24,10 +24,10 @@ export function SpoolCard({ spool }: { spool: SpoolView }) {
           {spool.productLine} {spool.colorName}
         </p>
         <p className="truncate text-xs text-muted-foreground">
-          {spool.brand} · {de.materials[spool.material]} ·{" "}
           {spool.slot
-            ? de.printers.place(spool.slot.printerName, spool.slot.unitPosition, spool.slot.slotCount, spool.slot.slotPosition)
-            : (spool.location ?? de.spools.shelf)}
+            ? // Short form on the card; the spool page names the printer too.
+              `${spool.brand} · ${de.printers.unitPlace(spool.slot.unitPosition, spool.slot.slotCount, spool.slot.slotPosition)}`
+            : `${spool.brand} · ${de.materials[spool.material]} · ${spool.location ?? de.spools.shelf}`}
         </p>
       </div>
       <div className="text-right">

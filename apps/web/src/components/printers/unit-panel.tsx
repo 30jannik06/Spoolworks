@@ -22,7 +22,7 @@ const p = de.printers;
  * workshop's active spools (shelf first); picking one loads it, moving it out
  * of any other slot.
  */
-export function UnitPanel({ unit, spools }: { unit: UnitView; spools: SpoolView[] }) {
+export function UnitPanel({ unit, spools, printerId }: { unit: UnitView; spools: SpoolView[]; printerId: string }) {
   const [picking, setPicking] = useState<SlotView | null>(null);
   const [confirming, setConfirming] = useState(false);
   const [error, setError] = useState<string>();
@@ -67,7 +67,7 @@ export function UnitPanel({ unit, spools }: { unit: UnitView; spools: SpoolView[
                 thickness={7}
                 label={slot.spool ? `${slot.spool.colorName}, ${slot.spool.remainingG} g` : p.emptySlot}
               />
-              <span className="eyebrow">{unit.slotCount === 1 ? unitName : p.slotName(slot.position)}</span>
+              <span className="eyebrow">{p.slotName(slot.position)}</span>
               {slot.spool ? (
                 <span className="w-full min-w-0">
                   <span className="block truncate text-xs font-medium md:text-sm">{slot.spool.colorName}</span>
@@ -124,6 +124,7 @@ export function UnitPanel({ unit, spools }: { unit: UnitView; spools: SpoolView[
         slot={picking}
         title={picking ? p.pickTitle(unit.slotCount === 1 ? unitName : `${unitName} · ${p.slotName(picking.position)}`) : ""}
         spools={spools}
+        printerId={printerId}
         onClose={() => setPicking(null)}
       />
     </Tile>
@@ -134,11 +135,13 @@ function SlotPicker({
   slot,
   title,
   spools,
+  printerId,
   onClose,
 }: {
   slot: SlotView | null;
   title: string;
   spools: SpoolView[];
+  printerId: string;
   onClose: () => void;
 }) {
   const [query, setQuery] = useState("");
@@ -230,17 +233,26 @@ function SlotPicker({
                       <span className="block truncate text-sm font-medium">
                         {spool.productLine} {spool.colorName}
                       </span>
-                      <span className="block truncate text-xs text-muted-foreground">
-                        {spool.brand} ·{" "}
-                        {spool.slot ? (
-                          <span className="inline-flex items-center gap-1">
-                            <ArrowLeftRight className="inline size-3" aria-hidden="true" />
-                            {p.place(spool.slot.printerName, spool.slot.unitPosition, spool.slot.slotCount, spool.slot.slotPosition)}
+                      {spool.slot ? (
+                        // Already loaded elsewhere: say where, since picking it moves it.
+                        <span className="flex min-w-0 items-center gap-1 text-xs text-muted-foreground">
+                          <ArrowLeftRight className="size-3 shrink-0" aria-hidden="true" />
+                          <span className="truncate">
+                            {spool.slot.printerId === printerId
+                              ? p.unitPlace(spool.slot.unitPosition, spool.slot.slotCount, spool.slot.slotPosition)
+                              : p.place(
+                                  spool.slot.printerName,
+                                  spool.slot.unitPosition,
+                                  spool.slot.slotCount,
+                                  spool.slot.slotPosition,
+                                )}
                           </span>
-                        ) : (
-                          p.pickShelf
-                        )}
-                      </span>
+                        </span>
+                      ) : (
+                        <span className="block truncate text-xs text-muted-foreground">
+                          {spool.brand} · {p.pickShelf}
+                        </span>
+                      )}
                     </span>
                     <span className={cn("figure text-sm", spool.low && "text-warning")}>{spool.remainingG} g</span>
                   </button>
@@ -251,11 +263,15 @@ function SlotPicker({
           </>
         )}
 
-        {error && (
+        {pending ? (
+          <p className="text-sm text-muted-foreground" role="status">
+            {p.pickSaving}
+          </p>
+        ) : error ? (
           <p className="text-sm text-destructive" role="alert">
             {errorText(error)}
           </p>
-        )}
+        ) : null}
       </DialogContent>
     </Dialog>
   );
