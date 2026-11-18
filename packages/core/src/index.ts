@@ -9,4 +9,5 @@ export * from "./printer";
 export * from "./share";
 export * from "./short-code";
 export * from "./spool-input";
+export * from "./stats";
 export * from "./weight";
