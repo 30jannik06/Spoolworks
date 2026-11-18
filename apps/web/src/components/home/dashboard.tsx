@@ -1,8 +1,11 @@
-import { ArrowRight, Plus, Scale, Sparkles } from "lucide-react";
+import type { WorkshopStats } from "@spoolworks/core";
+import { ArrowRight, Plus, Scale } from "lucide-react";
 import Link from "next/link";
 
 import { AmsStrip } from "@/components/printers/ams-strip";
 import { SpoolRing } from "@/components/spool-ring";
+import { euros, monthLabel, percent, weight } from "@/components/stats/format";
+import { SparkColumns } from "@/components/stats/spark-columns";
 import { Eyebrow, Figure, Tile } from "@/components/tile";
 import { Button } from "@/components/ui/button";
 import type { PrinterView } from "@/lib/queries/printers";
@@ -27,6 +30,7 @@ export function Dashboard({
   stock,
   printer,
   prints,
+  stats,
 }: {
   userName: string;
   workshopName: string;
@@ -34,7 +38,11 @@ export function Dashboard({
   stock: { totalG: number; count: number; low: SpoolView[] };
   printer: PrinterView | null;
   prints: { count: number; latest: PrintView | null };
+  /** Last 6 months, from getWorkshopStats. */
+  stats: WorkshopStats;
 }) {
+  const current = stats.months.at(-1);
+  const total = stats.printed + stats.failed;
   return (
     <div className="space-y-5 md:space-y-6">
       <div className="flex items-end justify-between gap-3">
@@ -157,13 +165,35 @@ export function Dashboard({
           )}
         </Tile>
 
-        <Tile className="flex gap-3 md:p-6">
-          <Sparkles className="mt-0.5 size-4 shrink-0 text-primary" aria-hidden="true" />
-          <div>
-            <p className="text-sm font-medium">{de.home.nextTitle}</p>
-            <p className="mt-1 text-sm text-muted-foreground">{de.home.nextBody}</p>
+        <Link
+          href="/stats"
+          className="flex flex-col rounded-xl border bg-card p-4 transition-colors hover:bg-accent/60 md:p-6"
+        >
+          <div className="flex items-center justify-between gap-3">
+            <Eyebrow>{de.stats.dashboardEyebrow}</Eyebrow>
+            <span className="inline-flex items-center gap-1 text-sm text-muted-foreground">
+              {de.stats.dashboardOpen}
+              <ArrowRight className="size-4" aria-hidden="true" />
+            </span>
           </div>
-        </Tile>
+          {current && (
+            <>
+              <p className="mt-3 text-xs text-muted-foreground">
+                {de.stats.thisMonth} · {monthLabel(current.month, true)}
+              </p>
+              <p className="figure mt-1 text-xl md:text-2xl">{weight(current.usedG)}</p>
+              <p className="figure text-sm text-muted-foreground">
+                {euros(current.costCents)}
+                {total > 0 && ` · ${percent(stats.printed, total)} ${de.stats.success}`}
+              </p>
+              <SparkColumns
+                className="mt-4"
+                values={stats.months.map((m) => m.usedG)}
+                label={`${de.stats.lastMonths}: ${stats.months.map((m) => `${monthLabel(m.month)} ${weight(m.usedG)}`).join(", ")}`}
+              />
+            </>
+          )}
+        </Link>
       </div>
     </div>
   );

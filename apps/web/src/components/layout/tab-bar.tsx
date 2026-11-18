@@ -34,7 +34,8 @@ export function TabBar() {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
   const close = useCallback(() => setOpen(false), []);
-  const [left, right] = [NAV.slice(0, 2), NAV.slice(2)];
+  const tabs = NAV.filter((item) => !item.desktopOnly);
+  const [left, right] = [tabs.slice(0, 2), tabs.slice(2)];
 
   return (
     <>
