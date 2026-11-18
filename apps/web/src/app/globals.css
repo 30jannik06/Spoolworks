@@ -140,3 +140,39 @@
 body:has([data-slot="dialog-overlay"]) [data-tabbar] {
   z-index: 40;
 }
+
+/* Label sheets: real A4 in mm. On screen SheetScaler sets --sheet-zoom to fit
+   the column (so the preview is the print layout); in print they are 1:1, one
+   per page. Paper is white whatever the theme: browsers drop dark backgrounds. */
+@layer components {
+  .label-sheet {
+    position: relative;
+    width: 210mm;
+    height: 297mm;
+    overflow: hidden;
+    background: #fff;
+    color: #000;
+    zoom: var(--sheet-zoom, 0.4);
+  }
+}
+
+@media print {
+  @page {
+    size: A4;
+    margin: 0;
+  }
+  html,
+  body {
+    background: #fff !important;
+    color: #000 !important;
+  }
+  .label-sheet {
+    zoom: 1;
+    margin: 0 !important;
+    border: 0 !important;
+    break-after: page;
+  }
+  .label-sheet:last-child {
+    break-after: auto;
+  }
+}
