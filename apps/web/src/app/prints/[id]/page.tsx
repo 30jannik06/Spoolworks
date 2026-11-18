@@ -7,6 +7,7 @@ import { Suspense } from "react";
 import { BackLink } from "@/components/layout/back-link";
 import { PrintActions } from "@/components/prints/print-actions";
 import { PrintStatusBadge, printDate } from "@/components/prints/print-card";
+import { SharePanel } from "@/components/prints/share-panel";
 import { Eyebrow, Tile } from "@/components/tile";
 import { getPrint } from "@/lib/queries/prints";
 import { requireWorkshop } from "@/lib/session";
@@ -109,6 +110,11 @@ async function PrintDetail({ params }: { params: PageProps<"/prints/[id]">["para
               <p className="text-sm whitespace-pre-line">{print.notes}</p>
             </Tile>
           )}
+          <SharePanel
+            printId={print.id}
+            token={print.shareToken}
+            galleryHandle={workshop.galleryPublic ? workshop.publicHandle : null}
+          />
           <PrintActions printId={print.id} />
         </div>
       </div>

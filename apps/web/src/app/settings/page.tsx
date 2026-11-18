@@ -1,5 +1,6 @@
 import { Suspense } from "react";
 
+import { GalleryForm } from "@/components/settings/gallery-form";
 import { ThresholdForm } from "@/components/settings/threshold-form";
 import { Tile } from "@/components/tile";
 import { requireWorkshop } from "@/lib/session";
@@ -24,6 +25,13 @@ async function Settings() {
           <p className="mt-1 text-sm text-muted-foreground">{de.settings.thresholdBody}</p>
         </div>
         <ThresholdForm current={workshop.lowStockThresholdG} />
+      </Tile>
+      <Tile className="space-y-4 md:p-6">
+        <div>
+          <h2 className="font-medium">{de.settings.galleryTitle}</h2>
+          <p className="mt-1 text-sm text-muted-foreground">{de.settings.galleryBody}</p>
+        </div>
+        <GalleryForm handle={workshop.publicHandle} isPublic={workshop.galleryPublic} />
       </Tile>
     </div>
   );
