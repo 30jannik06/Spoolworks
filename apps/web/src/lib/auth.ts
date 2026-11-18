@@ -6,6 +6,8 @@ import { betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
 import { nextCookies } from "better-auth/next-js";
 
+import { mailConfigured, resetPasswordMail, sendMail } from "@/lib/mail";
+
 /**
  * Better Auth server instance. Used by the route handler at /api/auth/[...all]
  * and by lib/session.ts. Never import from a client component; use
@@ -16,14 +18,21 @@ export const auth = betterAuth({
 
   emailAndPassword: {
     enabled: true,
-    // No mail service: password resets go through the support address and a
-    // one-time link an admin creates on /admin (see app/admin/actions.ts).
-    // No sendResetPassword, so the public request-password-reset endpoint
-    // refuses with RESET_PASSWORD_DISABLED.
     requireEmailVerification: false,
     minPasswordLength: 8,
     resetPasswordTokenExpiresIn: RESET_LINK_TTL_SECONDS,
     revokeSessionsOnPasswordReset: true,
+    // With SMTP configured (lib/mail.ts) "Passwort vergessen" mails the link.
+    // Without it there is no sendResetPassword, the public reset request
+    // refuses with RESET_PASSWORD_DISABLED, and resets go through the support
+    // address and a link an admin makes on /admin (app/admin/actions.ts).
+    ...(mailConfigured()
+      ? {
+          sendResetPassword: async ({ user, url }: { user: { email: string; name: string }; url: string }) => {
+            await sendMail(resetPasswordMail(user.email, user.name, url));
+          },
+        }
+      : {}),
   },
 
   user: {
