@@ -1,21 +1,20 @@
 "use client";
 
-import { useActionState, useState } from "react";
+import { useState } from "react";
 
 import { openSpoolCode } from "@/app/s/actions";
 import { Field, inputClass } from "@/components/form/field";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { initialActionState } from "@/lib/action-state";
+import { useFormAction } from "@/lib/use-form-action";
 import { de } from "@/messages/de";
 
 /** Code from the label, typed by hand. Hyphens, spaces and I/L/O mix-ups are forgiven. */
 export function CodeEntry() {
-  const [state, formAction, pending] = useActionState(openSpoolCode, initialActionState);
-  // Controlled, so a typo survives the form reset React does after the action.
+  const { state, pending, onSubmit } = useFormAction(openSpoolCode);
   const [code, setCode] = useState("");
   return (
-    <form action={formAction} className="space-y-4">
+    <form onSubmit={onSubmit} className="space-y-4">
       <Field label={de.labels.codeLabel} htmlFor="code" hint={de.labels.codeHint} error={state.fieldErrors?.["code"]}>
         <Input
           id="code"

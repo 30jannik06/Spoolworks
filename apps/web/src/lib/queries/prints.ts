@@ -37,6 +37,8 @@ export type PrintView = {
   modelUrl: string | null;
   modelSource: ModelSource | null;
   notes: string | null;
+  /** Secret share token; null = private. */
+  shareToken: string | null;
   printer: { id: string; name: string } | null;
   usages: UsageView[];
   totalG: number;
@@ -61,6 +63,7 @@ function toPrintView(row: PrintRow): PrintView {
     modelUrl: row.modelUrl,
     modelSource: row.modelSource,
     notes: row.notes,
+    shareToken: row.shareToken,
     printer: row.printer,
     usages,
     totalG: usages.reduce((sum, usage) => sum + usage.grams, 0),
