@@ -10,6 +10,7 @@ import { spoolInclude, toView, type SpoolView } from "@/lib/queries/spools";
 
 const printInclude = {
   printer: { select: { id: true, name: true } },
+  photos: { orderBy: { position: "asc" }, select: { id: true, width: true, height: true } },
   usages: {
     orderBy: { grams: "desc" },
     include: { spool: { include: { product: { include: { brand: true } } } } },
@@ -40,6 +41,8 @@ export type PrintView = {
   /** Secret share token; null = private. */
   shareToken: string | null;
   printer: { id: string; name: string } | null;
+  /** In order, the first is the cover. Served by /photos/<id>. */
+  photos: { id: string; width: number; height: number }[];
   usages: UsageView[];
   totalG: number;
 };
@@ -65,6 +68,7 @@ function toPrintView(row: PrintRow): PrintView {
     notes: row.notes,
     shareToken: row.shareToken,
     printer: row.printer,
+    photos: row.photos,
     usages,
     totalG: usages.reduce((sum, usage) => sum + usage.grams, 0),
   };

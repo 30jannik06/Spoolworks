@@ -25,7 +25,8 @@ export default defineConfig({
         test: { name: "unit", include: ["src/**/*.test.ts"] },
       },
       {
-        resolve: { alias },
+        // The real Blob token is in the root .env: integration tests only ever see the in-memory stub.
+        resolve: { alias: { ...alias, "@vercel/blob": path.resolve(root, "tests/stubs/vercel-blob.ts") } },
         test: {
           name: "integration",
           include: ["tests/integration/**/*.test.ts"],

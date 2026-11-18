@@ -25,8 +25,8 @@ export function PrintStatusBadge({ status }: { status: PrintView["status"] }) {
 }
 
 /**
- * One print in the gallery. Until photos arrive, the filament colours it used
- * form the card's visual: one band per spool, sized by grams.
+ * One print in the gallery: its cover photo if it has one, and always the
+ * filament colours it used as a band (one stripe per spool, sized by grams).
  */
 export function PrintCard({ print }: { print: PrintView }) {
   return (
@@ -34,6 +34,15 @@ export function PrintCard({ print }: { print: PrintView }) {
       href={`/prints/${print.id}`}
       className="flex h-full flex-col overflow-hidden rounded-xl border bg-card transition-colors hover:bg-accent/60"
     >
+      {print.photos[0] && (
+        // eslint-disable-next-line @next/next/no-img-element -- private photo, served after a permission check
+        <img
+          src={`/photos/${print.photos[0].id}?size=thumb`}
+          alt=""
+          loading="lazy"
+          className="aspect-[4/3] w-full bg-muted object-cover"
+        />
+      )}
       <div className="flex h-2 w-full bg-muted" aria-hidden="true">
         {print.usages.map((usage) => (
           <span key={usage.spoolId} style={{ backgroundColor: usage.colorHex, flexGrow: usage.grams }} />
