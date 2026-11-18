@@ -3,7 +3,7 @@
 import { MATERIALS } from "@spoolworks/core";
 import { Check, Search } from "lucide-react";
 import Link from "next/link";
-import { useActionState, useEffect, useState, useTransition } from "react";
+import { useEffect, useState, useTransition } from "react";
 
 import { findProducts } from "@/app/spools/actions";
 import { ColorPicker } from "@/components/form/color-picker";
@@ -14,9 +14,10 @@ import { SpoolRing } from "@/components/spool-ring";
 import { Tile } from "@/components/tile";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { initialActionState, type ActionState } from "@/lib/action-state";
+import type { ActionState } from "@/lib/action-state";
 import { errorText } from "@/lib/error-text";
 import type { ProductOption } from "@/lib/queries/spools";
+import { useFormAction } from "@/lib/use-form-action";
 import { de } from "@/messages/de";
 
 const f = de.spoolForm;
@@ -53,7 +54,7 @@ type Props =
     };
 
 export function SpoolForm(props: Props) {
-  const [state, formAction, pending] = useActionState(props.action, initialActionState);
+  const { state, pending, onSubmit } = useFormAction(props.action);
   const errors = state.fieldErrors ?? {};
   const defaults = props.mode === "edit" ? props.defaults : {};
 
@@ -62,7 +63,7 @@ export function SpoolForm(props: Props) {
   const [initialNet, setInitialNet] = useState("1000");
 
   return (
-    <form action={formAction} className="grid gap-4 lg:grid-cols-[1.2fr_1fr] lg:items-start lg:gap-6">
+    <form onSubmit={onSubmit} className="grid gap-4 lg:grid-cols-[1.2fr_1fr] lg:items-start lg:gap-6">
       {props.mode === "create" && (
         <ProductSection
           errors={errors}

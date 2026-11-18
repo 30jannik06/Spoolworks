@@ -3,7 +3,7 @@
 import { PRINT_STATUSES, parseGrams, type PrintStatus } from "@spoolworks/core";
 import { Plus, Wand2, X } from "lucide-react";
 import Link from "next/link";
-import { useActionState, useId, useState } from "react";
+import { useId, useState } from "react";
 
 import { DatePicker } from "@/components/form/date-picker";
 import { Field, Select, inputClass } from "@/components/form/field";
@@ -12,9 +12,10 @@ import { SpoolRing } from "@/components/spool-ring";
 import { Tile } from "@/components/tile";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { initialActionState, type ActionState } from "@/lib/action-state";
+import type { ActionState } from "@/lib/action-state";
 import { errorText } from "@/lib/error-text";
 import type { SpoolView } from "@/lib/queries/spools";
+import { useFormAction } from "@/lib/use-form-action";
 import { cn } from "@/lib/utils";
 import { de } from "@/messages/de";
 
@@ -48,7 +49,7 @@ export function PrintForm({
   printers: { id: string; name: string; loadedSpoolIds: string[] }[];
   defaults?: PrintFormDefaults;
 }) {
-  const [state, formAction, pending] = useActionState(action, initialActionState);
+  const { state, pending, onSubmit } = useFormAction(action);
   const errors = state.fieldErrors ?? {};
   const [status, setStatus] = useState<PrintStatus>(defaults.status ?? "PRINTED");
   const [printerId, setPrinterId] = useState(defaults.printerId ?? (mode === "create" ? (printers[0]?.id ?? "") : ""));
@@ -87,7 +88,7 @@ export function PrintForm({
   }
 
   return (
-    <form action={formAction} className="grid gap-4 lg:grid-cols-[1fr_1.1fr] lg:items-start lg:gap-6">
+    <form onSubmit={onSubmit} className="grid gap-4 lg:grid-cols-[1fr_1.1fr] lg:items-start lg:gap-6">
       <Tile className="space-y-4 md:p-6">
         <Field label={p.name} htmlFor="name" error={errors["name"]}>
           <Input
