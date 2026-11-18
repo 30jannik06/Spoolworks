@@ -1,4 +1,4 @@
-import { Layers, Plus } from "lucide-react";
+import { Layers, Plus, QrCode } from "lucide-react";
 import Link from "next/link";
 import { Suspense } from "react";
 
@@ -34,13 +34,24 @@ async function Spools({ searchParams }: { searchParams: PageProps<"/spools">["se
           <h1 className="text-2xl font-medium tracking-tight md:text-3xl">{de.spools.title}</h1>
           <p className="figure mt-1 text-sm text-muted-foreground">{de.spools.count(spools.length)}</p>
         </div>
-        <Button asChild className="h-11 px-4">
-          <Link href="/spools/new">
-            <Plus aria-hidden="true" />
-            <span className="hidden sm:inline">{de.spools.add}</span>
-            <span className="sr-only sm:hidden">{de.spools.add}</span>
-          </Link>
-        </Button>
+        <div className="flex gap-2">
+          {hasAny && (
+            <Button asChild variant="outline" className="h-11 px-4">
+              <Link href="/labels">
+                <QrCode aria-hidden="true" />
+                <span className="hidden sm:inline">{de.labels.title}</span>
+                <span className="sr-only sm:hidden">{de.labels.title}</span>
+              </Link>
+            </Button>
+          )}
+          <Button asChild className="h-11 px-4">
+            <Link href="/spools/new">
+              <Plus aria-hidden="true" />
+              <span className="hidden sm:inline">{de.spools.add}</span>
+              <span className="sr-only sm:hidden">{de.spools.add}</span>
+            </Link>
+          </Button>
+        </div>
       </div>
 
       {hasAny && <SpoolFilters filter={filter} facets={facets} />}

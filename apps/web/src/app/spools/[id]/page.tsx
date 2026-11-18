@@ -1,14 +1,17 @@
-import { formatCents } from "@spoolworks/core";
-import { ExternalLink } from "lucide-react";
+import { formatCents, formatShortCode } from "@spoolworks/core";
+import { ExternalLink, QrCode } from "lucide-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 
+import { NfcWrite } from "@/components/labels/nfc-write";
 import { BackLink } from "@/components/layout/back-link";
 import { SpoolRing } from "@/components/spool-ring";
 import { SpoolActions } from "@/components/spools/spool-actions";
 import { WeighPanel } from "@/components/spools/weigh-panel";
 import { Eyebrow, Tile } from "@/components/tile";
+import { Button } from "@/components/ui/button";
+import { labelOrigin, spoolLabelUrl } from "@/lib/label-origin";
 import { getSpool, getSpoolLedger } from "@/lib/queries/spools";
 import { requireWorkshop } from "@/lib/session";
 import { cn } from "@/lib/utils";
@@ -36,9 +39,10 @@ const dateTimeFormat = new Intl.DateTimeFormat("de-DE", {
 async function SpoolDetail({ params }: { params: PageProps<"/spools/[id]">["params"] }) {
   const { id } = await params;
   const { workshop } = await requireWorkshop(`/spools/${id}`);
-  const [spool, ledger] = await Promise.all([
+  const [spool, ledger, { origin }] = await Promise.all([
     getSpool(workshop.id, id, workshop.lowStockThresholdG),
     getSpoolLedger(workshop.id, id),
+    labelOrigin(),
   ]);
   if (!spool) notFound();
 
@@ -67,7 +71,6 @@ async function SpoolDetail({ params }: { params: PageProps<"/spools/[id]">["para
       value: spool.purchasedOn ? dateFormat.format(new Date(`${spool.purchasedOn}T00:00:00Z`)) : d.noValue,
     },
     { label: d.location, value: spool.location ?? (spool.slot ? d.noValue : de.spools.shelf) },
-    { label: d.code, value: spool.shortCode },
   ];
 
   return (
@@ -191,6 +194,21 @@ async function SpoolDetail({ params }: { params: PageProps<"/spools/[id]">["para
                 ))}
               </ul>
             )}
+          </Tile>
+
+          <Tile className="space-y-3">
+            <div className="flex items-baseline justify-between gap-3">
+              <Eyebrow>{d.code}</Eyebrow>
+              <span className="figure text-base tracking-wider">{formatShortCode(spool.shortCode)}</span>
+            </div>
+            <NfcWrite url={spoolLabelUrl(origin, spool.shortCode)}>
+              <Button asChild variant="outline" className="h-11">
+                <Link href={`/labels?id=${spool.id}`}>
+                  <QrCode aria-hidden="true" />
+                  {de.labels.spoolButton}
+                </Link>
+              </Button>
+            </NfcWrite>
           </Tile>
 
           <SpoolActions spoolId={spool.id} archived={spool.status === "ARCHIVED"} />
