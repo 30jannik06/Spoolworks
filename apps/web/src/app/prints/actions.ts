@@ -1,7 +1,15 @@
 "use server";
 
-import { consumesFilament, modelSourceFromUrl, printInput, type PrintInput, type PrintStatus } from "@spoolworks/core";
+import {
+  consumesFilament,
+  generateShareToken,
+  modelSourceFromUrl,
+  printInput,
+  type PrintInput,
+  type PrintStatus,
+} from "@spoolworks/core";
 import { prisma, type Prisma } from "@spoolworks/database";
+import { refresh } from "next/cache";
 import { redirect } from "next/navigation";
 
 import { fieldErrorsFrom, formToObject, type ActionState } from "@/lib/action-state";
@@ -178,4 +186,22 @@ export async function deletePrint(printId: string): Promise<ActionState> {
   });
   if (!deleted) return { ok: false, error: "print_not_found" };
   redirect("/prints");
+}
+
+/**
+ * Starts or stops sharing a print. Sharing mints a fresh secret token; stopping
+ * clears it, so the old link is dead at once and sharing again gives a new one.
+ */
+export async function setPrintShared(printId: string, shared: boolean): Promise<ActionState> {
+  const { workshop } = await requireWorkshop();
+  const where = { id: printId, workshopId: workshop.id };
+  // Sharing an already shared print keeps its link (a double click must not kill it).
+  const { count } = shared
+    ? await prisma.print.updateMany({ where: { ...where, shareToken: null }, data: { shareToken: generateShareToken() } })
+    : await prisma.print.updateMany({ where, data: { shareToken: null } });
+  if (count === 0 && !(shared && (await prisma.print.count({ where })) > 0)) {
+    return { ok: false, error: "print_not_found" };
+  }
+  refresh();
+  return { ok: true };
 }

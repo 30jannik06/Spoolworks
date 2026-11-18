@@ -1,3 +1,4 @@
+import { Link2 } from "lucide-react";
 import Link from "next/link";
 
 import type { PrintView } from "@/lib/queries/prints";
@@ -47,7 +48,12 @@ export function PrintCard({ print }: { print: PrintView }) {
               {print.printer ? ` · ${print.printer.name}` : ""}
             </p>
           </div>
-          <PrintStatusBadge status={print.status} />
+          <span className="flex shrink-0 items-center gap-2">
+            {print.shareToken && (
+              <Link2 className="size-4 text-muted-foreground" aria-label={de.share.sharedBadge} />
+            )}
+            <PrintStatusBadge status={print.status} />
+          </span>
         </div>
         <div className="mt-auto flex items-center justify-between gap-3">
           <div className="flex -space-x-1">
