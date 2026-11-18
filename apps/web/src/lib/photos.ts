@@ -19,9 +19,16 @@ import { del, get, put } from "@vercel/blob";
  * (owner session, or a shared print's token).
  */
 
-/** Without a token the photo UI stays off, like mail without SMTP. */
+/**
+ * Whether the store is reachable; otherwise the photo UI stays off, like mail
+ * without SMTP. Two ways in: a read-write token, or the store id with Vercel
+ * OIDC (on Vercel the platform provides the OIDC token per request; locally
+ * only a pulled VERCEL_OIDC_TOKEN works, and only if the store allows the
+ * development environment).
+ */
 export function photosEnabled(): boolean {
-  return Boolean(process.env.BLOB_READ_WRITE_TOKEN);
+  if (process.env.BLOB_READ_WRITE_TOKEN) return true;
+  return Boolean(process.env.BLOB_STORE_ID && (process.env.VERCEL === "1" || process.env.VERCEL_OIDC_TOKEN));
 }
 
 function envPrefix(): string {
