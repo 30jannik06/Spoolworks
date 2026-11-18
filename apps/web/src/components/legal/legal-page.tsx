@@ -31,11 +31,15 @@ export function ProviderBlock({ provider }: { provider: Imprint | null }) {
   return (
     <address className="not-italic">
       {provider.name}
-      {provider.address.map((line) => (
-        <span key={line} className="block">
-          {line}
-        </span>
-      ))}
+      {provider.address.length > 0 ? (
+        provider.address.map((line) => (
+          <span key={line} className="block">
+            {line}
+          </span>
+        ))
+      ) : (
+        <span className="block text-muted-foreground">{de.legal.addressMissing}</span>
+      )}
       {provider.email && (
         <span className="mt-2 block">
           {de.legal.emailLabel}{" "}

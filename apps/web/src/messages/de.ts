@@ -582,6 +582,7 @@ export const de = {
       "SpoolWorks ist ein privates, nicht kommerzielles Projekt. Es gibt keine Werbung und keine kostenpflichtigen Funktionen.",
     emailLabel: "E-Mail:",
     missing: "Die Anbieterangaben werden gerade eingetragen.",
+    addressMissing: "Anschrift wird nachgetragen.",
     updated: "Stand: November 2026",
     registerNote: "Mit dem Konto gilt die Datenschutzerklärung.",
     settingsTitle: "Rechtliches",
