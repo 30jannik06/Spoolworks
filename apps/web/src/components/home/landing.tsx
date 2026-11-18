@@ -1,6 +1,7 @@
 import { ArrowRight, Images, Layers, Lock, Nfc, Printer, Scale, TriangleAlert } from "lucide-react";
 import Link from "next/link";
 
+import { LegalLinks } from "@/components/legal/legal-links";
 import { SpoolMark } from "@/components/layout/spool-mark";
 import { SpoolRing } from "@/components/spool-ring";
 import { Eyebrow, Tile } from "@/components/tile";
@@ -32,6 +33,7 @@ export function Landing() {
           >
             {t.catalogCredit}
           </a>
+          <LegalLinks />
         </div>
       </footer>
     </div>

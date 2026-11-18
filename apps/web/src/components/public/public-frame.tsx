@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 
+import { LegalLinks } from "@/components/legal/legal-links";
 import { SpoolMark } from "@/components/layout/spool-mark";
 import { de } from "@/messages/de";
 
@@ -20,6 +21,7 @@ export function PublicFrame({ children }: { children: ReactNode }) {
         <Link href="/" className="inline-flex min-h-11 items-center underline-offset-4 hover:text-foreground hover:underline">
           {de.publicPage.cta}
         </Link>
+        <LegalLinks className="w-full" />
       </footer>
     </div>
   );
