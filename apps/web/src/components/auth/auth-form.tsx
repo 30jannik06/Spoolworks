@@ -53,7 +53,7 @@ export function AuthForm({ mode }: { mode: Mode }) {
     (next ? `?next=${encodeURIComponent(next)}` : "");
 
   return (
-    <form onSubmit={onSubmit} className="space-y-5">
+    <form method="post" onSubmit={onSubmit} className="space-y-5">
       {mode === "register" && (
         <div className="space-y-2">
           <Label htmlFor="name">{de.auth.name}</Label>
@@ -83,8 +83,15 @@ export function AuthForm({ mode }: { mode: Mode }) {
           required
           className="h-11 text-base"
         />
-        {mode === "register" && (
+        {mode === "register" ? (
           <p className="text-sm text-muted-foreground">{de.auth.passwordHint}</p>
+        ) : (
+          <Link
+            href="/auth/forgot"
+            className="inline-flex min-h-11 items-center text-sm text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
+          >
+            {de.auth.forgotLink}
+          </Link>
         )}
       </div>
 
