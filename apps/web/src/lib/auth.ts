@@ -1,5 +1,6 @@
 import "server-only";
 
+import { RESET_LINK_TTL_SECONDS } from "@spoolworks/core";
 import { prisma } from "@spoolworks/database";
 import { betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
@@ -15,10 +16,20 @@ export const auth = betterAuth({
 
   emailAndPassword: {
     enabled: true,
-    // TODO(auth): needs a mail provider (password reset, verification) before
-    // the app opens to the public.
+    // No mail service: password resets go through the support address and a
+    // one-time link an admin creates on /admin (see app/admin/actions.ts).
+    // No sendResetPassword, so the public request-password-reset endpoint
+    // refuses with RESET_PASSWORD_DISABLED.
     requireEmailVerification: false,
     minPasswordLength: 8,
+    resetPasswordTokenExpiresIn: RESET_LINK_TTL_SECONDS,
+    revokeSessionsOnPasswordReset: true,
+  },
+
+  user: {
+    // Confirmed with the password in settings. Deleting the user cascades to
+    // the workshop and everything that hangs off it (see schema.prisma).
+    deleteUser: { enabled: true },
   },
 
   session: {

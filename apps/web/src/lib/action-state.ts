@@ -10,6 +10,8 @@ export type ActionState = {
   fieldErrors?: Record<string, string>;
   /** Optional payload for the client, e.g. the new remaining weight. */
   value?: number;
+  /** Optional text payload, e.g. the path of a freshly created reset link. */
+  text?: string;
 };
 
 export const initialActionState: ActionState = { ok: false };
