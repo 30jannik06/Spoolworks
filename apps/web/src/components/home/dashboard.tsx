@@ -176,15 +176,16 @@ export function Dashboard({
               <ArrowRight className="size-4" aria-hidden="true" />
             </span>
           </div>
-          {current && (
+          {total === 0 || !current ? (
+            <p className="mt-3 text-sm text-muted-foreground">{de.stats.dashboardEmpty}</p>
+          ) : (
             <>
               <p className="mt-3 text-xs text-muted-foreground">
                 {de.stats.thisMonth} · {monthLabel(current.month, true)}
               </p>
               <p className="figure mt-1 text-xl md:text-2xl">{weight(current.usedG)}</p>
               <p className="figure text-sm text-muted-foreground">
-                {euros(current.costCents)}
-                {total > 0 && ` · ${percent(stats.printed, total)} ${de.stats.success}`}
+                {euros(current.costCents)} · {percent(stats.printed, total)} {de.stats.success}
               </p>
               <SparkColumns
                 className="mt-4"
