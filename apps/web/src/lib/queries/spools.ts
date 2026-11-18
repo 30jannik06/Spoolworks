@@ -156,6 +156,51 @@ export async function getSpool(workshopId: string, spoolId: string, thresholdG: 
   return row ? toView(row, thresholdG) : null;
 }
 
+/**
+ * The spool behind a label code, archived ones included (the label is still
+ * stuck on the spool). Takes a normalised code; null for unknown or foreign.
+ */
+export async function findSpoolIdByCode(workshopId: string, code: string) {
+  const row = await prisma.spool.findFirst({ where: { shortCode: code, workshopId }, select: { id: true } });
+  return row?.id ?? null;
+}
+
+/** Spools for the label sheet: everything not archived, newest first. */
+export async function listLabelSpools(workshopId: string) {
+  const rows = await prisma.spool.findMany({
+    where: { workshopId, status: { not: "ARCHIVED" } },
+    select: {
+      id: true,
+      shortCode: true,
+      product: {
+        select: {
+          productLine: true,
+          colorName: true,
+          colorHex: true,
+          material: true,
+          diameterUm: true,
+          netWeightG: true,
+          brand: { select: { name: true } },
+        },
+      },
+    },
+    orderBy: { createdAt: "desc" },
+  });
+  return rows.map((row) => ({
+    id: row.id,
+    shortCode: row.shortCode,
+    brand: row.product.brand.name,
+    productLine: row.product.productLine,
+    colorName: row.product.colorName,
+    colorHex: row.product.colorHex,
+    material: row.product.material,
+    diameterUm: row.product.diameterUm,
+    netWeightG: row.product.netWeightG,
+  }));
+}
+
+export type LabelSpool = Awaited<ReturnType<typeof listLabelSpools>>[number];
+
 export type LedgerView = {
   seq: number;
   kind: "INITIAL" | "WEIGHING" | "CORRECTION" | "PRINT";

@@ -22,7 +22,7 @@ export function Sidebar({ userName, workshopName }: { userName: string; workshop
   return (
     <>
       {open && <QuickActions onClose={close} />}
-      <aside className="fixed inset-y-0 left-0 z-40 hidden w-60 flex-col border-r bg-background md:flex">
+      <aside className="fixed inset-y-0 left-0 z-40 hidden w-60 print:hidden flex-col border-r bg-background md:flex">
         <Link href="/" className="flex h-16 items-center gap-2.5 px-5 font-medium tracking-tight">
           <SpoolMark />
           {de.app.name}

@@ -60,6 +60,7 @@ Vercel project with Root Directory `apps/web`; `apps/web/vercel.json` pins `fra1
 - **TypeScript 6.0.3, not 7.** typescript-eslint supports `<6.1`.
 - **Next.js 16.4 with `cacheComponents`.** Anything that reads the request (session, `searchParams`, uncached DB reads) must render inside `<Suspense>`. Keep session reads out of layout top level.
 - **Better Auth 1.7**, email + password. Map `error.code` through `lib/auth-errors.ts`; never render `error.message`.
+- **Print CSS:** keep `@page` inside `@media print` in `globals.css`. A top-level `@page` makes the Tailwind/Turbopack build silently drop the rules after it. App chrome uses `print:hidden`.
 - **shadcn/ui** (`radix-nova`), utility `cn` from the `cn` package. Add components with `pnpm dlx shadcn@latest add <name>` in `apps/web`, don't hand-edit `components/ui/`.
 
 ## Design
@@ -78,6 +79,7 @@ Agreed direction (2026-11-17): near-black (`#0e0e0d`) / warm paper (`#f4f3ef`) b
 - **Not found and not yours look the same** (404), never 403.
 - **Printers and AMS:** `Printer` → `AmsUnit` (`slotCount` 4 or 1, hardware-neutral) → `AmsSlot`. `AmsSlot.spoolId` is unique: a spool sits in at most one slot, none means "on the shelf". Assigning moves a spool out of its old slot in the same transaction; archiving a spool unloads it. `Spool.location` is the user's own text and is never overwritten by slot data.
 - **Prints and the ledger:** a `PrintUsage` owns at most one PRINT ledger entry, and only while the print is PRINTED or FAILED (failed prints deduct). Edits update that entry in place so its `seq` stays put: booking order decides whether a later weighing wins, not the print date. Every change locks the affected spools in sorted id order and recomputes `remainingG`. A spool with usages cannot be deleted (archive it instead).
+- **Labels:** printed labels and NFC tags point to `/s/<shortCode>`, which opens the spool of the signed-in workshop (archived ones too); invalid, unknown and foreign codes are all 404. The origin comes from `lib/label-origin.ts` (`VERCEL_PROJECT_PRODUCTION_URL`, so labels printed from a preview still point at production). Sheet layouts are pure functions in `packages/core/src/label.ts`, lengths in micrometres. Label paper is hard-coded black on white, the one place raw colours are allowed.
 - **Integers only:** weights in whole grams (`…G`), prices in cents (`…Cents`), diameters in micrometres (`…Um`). No floats.
 - **Copy:** user-facing text is German and lives in `apps/web/src/messages/de.ts`. Code, comments, identifiers and commits are English.
 - **Mobile first:** every page usable on a phone; touch targets at least 44 px (`h-11` / `min-h-11`), inputs `text-base` (no iOS zoom).
@@ -86,4 +88,4 @@ Agreed direction (2026-11-17): near-black (`#0e0e0d`) / warm paper (`#f4f3ef`) b
 
 ## Status
 
-Phases 0–3 done (monorepo and auth, filament library with ledger, OFD catalog import, printers with AMS slots, print gallery with spool deduction; photos still open). See the hub for phases 4–5.
+Phases 0–4 done (monorepo and auth, filament library with ledger, OFD catalog import, printers with AMS slots, print gallery with spool deduction, QR/NFC spool labels). Photos for prints (3b) and phase 5 are open; see the hub.
