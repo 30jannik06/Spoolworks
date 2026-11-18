@@ -4,10 +4,10 @@
   "type": "module",
   "scripts": {
     "sync": "tsx src/main.ts",
-    "typecheck": "tsc --noEmit",
-    "test:integration": "vitest run"
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@spoolworks/catalog": "workspace:*",
     "@spoolworks/core": "workspace:*",
     "@spoolworks/database": "workspace:*",
     "dotenv": "^18.0.10"
@@ -15,7 +15,6 @@
   "devDependencies": {
     "@types/node": "^24.19.2",
     "tsx": "4.23.15",
-    "typescript": "6.0.3",
-    "vitest": "5.1.0"
+    "typescript": "6.0.3"
   }
 }

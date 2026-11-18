@@ -1,0 +1,22 @@
+{
+  "name": "@spoolworks/catalog",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test:integration": "vitest run"
+  },
+  "dependencies": {
+    "@spoolworks/core": "workspace:*",
+    "@spoolworks/database": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "^24.19.2",
+    "dotenv": "^18.0.10",
+    "typescript": "6.0.3",
+    "vitest": "5.1.0"
+  }
+}
