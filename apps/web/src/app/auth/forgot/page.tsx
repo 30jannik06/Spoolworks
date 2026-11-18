@@ -4,8 +4,7 @@ import Link from "next/link";
 import { ForgotForm } from "@/components/auth/forgot-form";
 import { Tile } from "@/components/tile";
 import { Button } from "@/components/ui/button";
-import { supportEmail } from "@/lib/admin";
-import { mailConfigured } from "@/lib/mail";
+import { mailConfigured, supportEmail } from "@/lib/mail";
 import { de } from "@/messages/de";
 
 const a = de.auth;

@@ -13,6 +13,12 @@ export function mailConfigured(): boolean {
   return !!(process.env.SMTP_USER?.includes("@") && process.env.SMTP_PASSWORD);
 }
 
+/** Where people write when no mail arrives (or, without SMTP, to get a reset link). Unset: no address shown. */
+export function supportEmail(): string | null {
+  const value = process.env.SUPPORT_EMAIL?.trim();
+  return value && value.includes("@") ? value : null;
+}
+
 let transporter: Transporter | null = null;
 
 function transport(): Transporter {
@@ -57,3 +63,29 @@ export function resetPasswordMail(to: string, name: string, url: string): Mail {
 <p style="font-size:13px;color:#666">${escapeHtml(m.resetValid)} ${escapeHtml(m.resetIgnore)}</p>`,
   };
 }
+
+/**
+ * Sent after a reset or a change, so the owner notices if someone else set a
+ * password. `origin` points the "not you?" link at the right deployment.
+ */
+export function passwordChangedMail(to: string, name: string, origin: string | null, support: string | null): Mail {
+  const m = de.mail;
+  const forgot = origin ? `${origin}/auth/forgot` : null;
+  const lines = [m.greeting(name), "", m.changedIntro, "", m.changedOk, m.changedNotYou];
+  if (forgot) lines.push(forgot);
+  if (support) lines.push(m.changedSupport(support));
+  const link = forgot ? escapeHtml(forgot) : null;
+  return {
+    to,
+    subject: m.changedSubject,
+    text: lines.join("\n"),
+    html: [
+      `<p>${escapeHtml(m.greeting(name))}</p>`,
+      `<p>${escapeHtml(m.changedIntro)}</p>`,
+      `<p>${escapeHtml(m.changedOk)}</p>`,
+      `<p>${escapeHtml(m.changedNotYou)}${link ? ` <a href="${link}">${link}</a>` : ""}</p>`,
+      support ? `<p style="font-size:13px;color:#666">${escapeHtml(m.changedSupport(support))}</p>` : "",
+    ].join("\n"),
+  };
+}
+

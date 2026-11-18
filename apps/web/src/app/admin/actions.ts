@@ -6,8 +6,7 @@ import { prisma } from "@spoolworks/database";
 import { fieldErrorsFrom, formToObject, type ActionState } from "@/lib/action-state";
 import { requireAdmin } from "@/lib/admin";
 import { auth } from "@/lib/auth";
-
-const RESET_PREFIX = "reset-password:";
+import { dropOtherResetTokens, RESET_PREFIX } from "@/lib/reset-tokens";
 
 /**
  * Creates a one-time password reset link for an account, in the same form
@@ -26,7 +25,7 @@ export async function createResetLink(_prev: ActionState, formData: FormData): P
   const user = await prisma.user.findUnique({ where: { email: parsed.data.email }, select: { id: true } });
   if (!user) return { ok: false, error: "invalid_input", fieldErrors: { email: "account_not_found" } };
 
-  await prisma.verification.deleteMany({ where: { identifier: { startsWith: RESET_PREFIX }, value: user.id } });
+  await dropOtherResetTokens(user.id);
   const token = generateShareToken();
   const ctx = await auth.$context;
   await ctx.internalAdapter.createVerificationValue({

@@ -19,9 +19,3 @@ export async function requireAdmin(next?: string) {
   if (!isAdmin(caller.user.email)) notFound();
   return caller;
 }
-
-/** Shown on the forgot-password page. Unset means the page says to ask whoever runs the instance. */
-export function supportEmail(): string | null {
-  const value = process.env.SUPPORT_EMAIL?.trim();
-  return value && value.includes("@") ? value : null;
-}
