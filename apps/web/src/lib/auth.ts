@@ -14,6 +14,7 @@ import {
   sendMail,
   supportEmail,
 } from "@/lib/mail";
+import { deleteBlobs, photosEnabled, workshopPhotoPathnames } from "@/lib/photos";
 import { dropOtherResetTokens } from "@/lib/reset-tokens";
 
 type MailUser = { id: string; email: string; name: string };
@@ -77,8 +78,17 @@ export const auth = betterAuth({
 
   user: {
     // Confirmed with the password in settings. Deleting the user cascades to
-    // the workshop and everything that hangs off it (see schema.prisma).
-    deleteUser: { enabled: true },
+    // the workshop and everything that hangs off it (see schema.prisma). The
+    // cascade cannot reach Blob, so the photos go first; if that fails, the
+    // account stays and the user can try again.
+    deleteUser: {
+      enabled: true,
+      beforeDelete: async (user) => {
+        if (!photosEnabled()) return;
+        const workshop = await prisma.workshop.findUnique({ where: { ownerId: user.id }, select: { id: true } });
+        if (workshop) await deleteBlobs(await workshopPhotoPathnames(workshop.id));
+      },
+    },
   },
 
   session: {

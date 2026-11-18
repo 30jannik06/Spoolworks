@@ -25,6 +25,29 @@ function ColorBand({ print, className }: { print: PublicPrint; className?: strin
   );
 }
 
+/** Shared photos, addressed by token and position (0 = cover), never by id. */
+function PublicPhotos({ print }: { print: PublicPrint }) {
+  if (print.photos.length === 0) return null;
+  return (
+    <ul className="grid grid-cols-2 gap-2">
+      {print.photos.map((photo, index) => (
+        <li key={index} className={index === 0 ? "col-span-2" : undefined}>
+          <a href={`/p/${print.token}/photos/${index}`} target="_blank" rel="noopener" className="block">
+            {/* eslint-disable-next-line @next/next/no-img-element -- served by our own route, never cached */}
+            <img
+              src={index === 0 ? `/p/${print.token}/photos/0` : `/p/${print.token}/photos/${index}?size=thumb`}
+              alt={index === 0 ? de.photos.coverAlt : de.photos.photoAlt(index + 1)}
+              width={photo.width}
+              height={photo.height}
+              className="aspect-[4/3] w-full rounded-lg border bg-muted object-cover"
+            />
+          </a>
+        </li>
+      ))}
+    </ul>
+  );
+}
+
 /** A shared print for visitors. Server-only, renders exactly the public fields. */
 export function PublicPrintView({ print, galleryHandle }: { print: PublicPrint; galleryHandle: string | null }) {
   const facts = [
@@ -81,6 +104,7 @@ export function PublicPrintView({ print, galleryHandle }: { print: PublicPrint; 
         </Tile>
 
         <div className="space-y-4 lg:col-start-1 lg:row-start-1">
+          <PublicPhotos print={print} />
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
             {facts.map((fact, index) => (
               <Tile key={fact.label} className={index === 2 ? "col-span-2 sm:col-span-1" : undefined}>
@@ -118,6 +142,15 @@ export function PublicPrintCard({ print }: { print: PublicPrint }) {
       href={`/p/${print.token}`}
       className="flex h-full flex-col overflow-hidden rounded-xl border bg-card transition-colors hover:bg-accent/60"
     >
+      {print.photos.length > 0 && (
+        // eslint-disable-next-line @next/next/no-img-element -- served by our own route, never cached
+        <img
+          src={`/p/${print.token}/photos/0?size=thumb`}
+          alt=""
+          loading="lazy"
+          className="aspect-[4/3] w-full bg-muted object-cover"
+        />
+      )}
       <ColorBand print={print} className="h-2" />
       <div className="flex flex-1 flex-col gap-3 p-4">
         <div className="flex items-start justify-between gap-3">
