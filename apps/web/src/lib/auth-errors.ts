@@ -26,7 +26,21 @@ const MESSAGES: Record<string, string> = {
   // Session
   FAILED_TO_CREATE_SESSION: "Anmeldung fehlgeschlagen. Bitte versuch es erneut.",
   SESSION_EXPIRED: "Deine Sitzung ist abgelaufen. Bitte melde dich erneut an.",
+
+  // Password reset (admin-made links) and account settings
+  INVALID_TOKEN: "Der Link ist abgelaufen oder wurde schon benutzt. Bitte frag einen neuen an.",
+  RESET_PASSWORD_DISABLED: "Passwort zurücksetzen geht über den Support.",
 };
+
+/**
+ * Same mapping, for forms where the user is already signed in and typed their
+ * current password (change password, delete account): there a wrong password
+ * is not an enumeration risk, so say it plainly.
+ */
+export function signedInAuthErrorMessage(error: { code?: string | undefined } | null | undefined): string {
+  if (error?.code === "INVALID_PASSWORD") return "Das aktuelle Passwort stimmt nicht.";
+  return authErrorMessage(error);
+}
 
 const FALLBACK = "Etwas ist schiefgelaufen. Bitte versuch es erneut.";
 
