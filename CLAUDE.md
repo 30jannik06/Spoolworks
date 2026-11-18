@@ -54,6 +54,8 @@ One `.env` at the **repo root** (copy `.env.example`). Prisma 7 does not load en
 
 Vercel project with Root Directory `apps/web`; `apps/web/vercel.json` pins `fra1` (Neon is eu-central-1) and runs `prisma migrate deploy` before the build. Production uses `prod_spoolworks`, Preview uses `dev_spoolworks`. Set `DATABASE_URL`, `DIRECT_URL`, `BETTER_AUTH_SECRET` per environment, `IMPRINT_NAME` and `IMPRINT_ADDRESS` for both; `BETTER_AUTH_URL` only for Production (previews infer their origin). `SMTP_USER`, `SMTP_PASSWORD`, `ADMIN_EMAILS` and `SUPPORT_EMAIL` for the account flow (see Conventions); all optional. Migrations run on every deploy including previews, so schema leads code: never write a migration the deployed code cannot survive.
 
+**Domains:** production is `https://spoolworks.de` (`BETTER_AUTH_URL`). `www.spoolworks.de`, `spoolworks.online`, `spoolworks.xyz` and `spoolworks-woad.vercel.app` redirect there with 308 and keep the path, so labels printed before the switch (`…vercel.app/s/<code>`) still work. DNS at GoDaddy (A `@` → Vercel). Vercel picks the shortest production domain as `VERCEL_PROJECT_PRODUCTION_URL`, so new labels say `spoolworks.de`. Never remove the vercel.app redirect. Domain redirects are set per project domain (dashboard, or `vercel api /v9/projects/spoolworks/domains/<name> -X PATCH`; in Git Bash prefix `MSYS_NO_PATHCONV=1`).
+
 ## Stack notes
 
 - **Prisma 7.10, not 8.** npm `latest` for `prisma` is an 8.0 RC and Better Auth's adapter does not support 8. Always install `@7`. The CLI config file is `prisma7.config.ts` (new name since 7.10).
