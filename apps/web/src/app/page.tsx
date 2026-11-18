@@ -4,6 +4,7 @@ import { Dashboard } from "@/components/home/dashboard";
 import { Landing } from "@/components/home/landing";
 import { listPrinters } from "@/lib/queries/printers";
 import { getPrintStats } from "@/lib/queries/prints";
+import { getWorkshopStats } from "@/lib/queries/stats";
 import { getStockStats } from "@/lib/queries/spools";
 import { getSession, getWorkshopForUser } from "@/lib/session";
 import { de } from "@/messages/de";
@@ -23,10 +24,11 @@ async function Home() {
     return <Landing />;
   }
   const workshop = await getWorkshopForUser(session.user.id);
-  const [stock, printers, prints] = await Promise.all([
+  const [stock, printers, prints, stats] = await Promise.all([
     getStockStats(workshop.id, workshop.lowStockThresholdG),
     listPrinters(workshop.id, workshop.lowStockThresholdG),
     getPrintStats(workshop.id),
+    getWorkshopStats(workshop.id, "6m"),
   ]);
   return (
     <Dashboard
@@ -36,6 +38,7 @@ async function Home() {
       stock={stock}
       printer={printers[0] ?? null}
       prints={prints}
+      stats={stats}
     />
   );
 }
