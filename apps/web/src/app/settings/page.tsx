@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Suspense } from "react";
 
+import { LegalLinks } from "@/components/legal/legal-links";
 import { DeleteAccountForm } from "@/components/settings/delete-account-form";
 import { GalleryForm } from "@/components/settings/gallery-form";
 import { PasswordForm } from "@/components/settings/password-form";
@@ -63,6 +64,7 @@ async function Settings() {
         </div>
         <DeleteAccountForm />
       </Tile>
+      <LegalLinks />
     </div>
   );
 }
