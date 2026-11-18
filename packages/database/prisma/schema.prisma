@@ -105,6 +105,7 @@ model Workshop {
   spools   Spool[]
   printers Printer[]
   prints   Print[]
+  photos   PrintPhoto[]
 }
 
 // ─── Catalog (global, product facts only) ────────────────────────────────────
@@ -327,8 +328,34 @@ model Print {
   workshop Workshop     @relation(fields: [workshopId], references: [id], onDelete: Cascade)
   printer  Printer?     @relation(fields: [printerId], references: [id], onDelete: SetNull)
   usages   PrintUsage[]
+  photos   PrintPhoto[]
 
   @@index([workshopId, printedOn])
+}
+
+/// A photo of a print, stored in the private Vercel Blob store. Position 0 is the cover.
+/// The blobs are not removed by the cascade: whoever deletes rows deletes their
+/// pathnames from Blob first (lib/photos.ts).
+model PrintPhoto {
+  id            String   @id @default(cuid())
+  workshopId    String
+  printId       String
+  position      Int
+  /// Random Blob pathnames, unique across every environment sharing the store.
+  pathname      String   @unique
+  thumbPathname String   @unique
+  contentType   String
+  width         Int
+  height        Int
+  bytes         Int
+  createdAt     DateTime @default(now())
+
+  workshop Workshop @relation(fields: [workshopId], references: [id], onDelete: Cascade)
+  print    Print    @relation(fields: [printId], references: [id], onDelete: Cascade)
+
+  /// Also caps concurrent uploads: two requests cannot claim the same slot.
+  @@unique([printId, position])
+  @@index([workshopId])
 }
 
 /// Grams one print took from one spool. Its PRINT ledger entry exists only

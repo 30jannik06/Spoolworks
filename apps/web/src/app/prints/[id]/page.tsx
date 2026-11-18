@@ -5,10 +5,12 @@ import { notFound } from "next/navigation";
 import { Suspense } from "react";
 
 import { BackLink } from "@/components/layout/back-link";
+import { PhotoPanel } from "@/components/prints/photo-panel";
 import { PrintActions } from "@/components/prints/print-actions";
 import { PrintStatusBadge, printDate } from "@/components/prints/print-card";
 import { SharePanel } from "@/components/prints/share-panel";
 import { Eyebrow, Tile } from "@/components/tile";
+import { photosEnabled } from "@/lib/photos";
 import { getPrint } from "@/lib/queries/prints";
 import { requireWorkshop } from "@/lib/session";
 import { de } from "@/messages/de";
@@ -86,6 +88,7 @@ async function PrintDetail({ params }: { params: PageProps<"/prints/[id]">["para
         </Tile>
 
         <div className="space-y-4 lg:col-start-1 lg:row-start-1">
+          {photosEnabled() && <PhotoPanel printId={print.id} photos={print.photos} />}
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
             {facts.map((fact, index) => (
               <Tile key={fact.label} className={index === 2 ? "col-span-2 sm:col-span-1" : undefined}>
