@@ -318,6 +318,8 @@ model Print {
   durationMin Int?
   modelUrl    String?
   modelSource ModelSource?
+  /// Secret link /p/<shareToken>; null = private. Shared prints also show in the public gallery.
+  shareToken  String?      @unique
   notes       String?
   createdAt   DateTime     @default(now())
   updatedAt   DateTime     @updatedAt

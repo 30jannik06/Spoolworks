@@ -5,6 +5,7 @@ export * from "./ofd";
 export * from "./parse";
 export * from "./print-input";
 export * from "./printer";
+export * from "./share";
 export * from "./short-code";
 export * from "./spool-input";
 export * from "./weight";
