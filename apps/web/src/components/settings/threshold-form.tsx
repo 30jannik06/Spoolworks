@@ -1,18 +1,17 @@
 "use client";
 
-import { useActionState } from "react";
 
 import { updateThreshold } from "@/app/settings/actions";
 import { Field, inputClass } from "@/components/form/field";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { initialActionState } from "@/lib/action-state";
+import { useFormAction } from "@/lib/use-form-action";
 import { de } from "@/messages/de";
 
 export function ThresholdForm({ current }: { current: number }) {
-  const [state, formAction, pending] = useActionState(updateThreshold, initialActionState);
+  const { state, pending, onSubmit } = useFormAction(updateThreshold);
   return (
-    <form action={formAction} className="flex flex-col gap-3 sm:flex-row sm:items-end">
+    <form onSubmit={onSubmit} className="flex flex-col gap-3 sm:flex-row sm:items-end">
       <Field
         label={de.settings.thresholdLabel}
         htmlFor="lowStockThresholdG"

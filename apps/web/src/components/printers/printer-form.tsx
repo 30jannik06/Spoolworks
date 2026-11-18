@@ -1,15 +1,16 @@
 "use client";
 
 import Link from "next/link";
-import { useActionState, useState } from "react";
+import { useState } from "react";
 
 import { Field, inputClass } from "@/components/form/field";
 import { Segmented } from "@/components/segmented";
 import { Tile } from "@/components/tile";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { initialActionState, type ActionState } from "@/lib/action-state";
+import type { ActionState } from "@/lib/action-state";
 import { errorText } from "@/lib/error-text";
+import { useFormAction } from "@/lib/use-form-action";
 import { de } from "@/messages/de";
 
 const p = de.printers;
@@ -27,12 +28,12 @@ export function PrinterForm({
   cancelHref: string;
   defaults?: { name?: string; model?: string };
 }) {
-  const [state, formAction, pending] = useActionState(action, initialActionState);
+  const { state, pending, onSubmit } = useFormAction(action);
   const [firstUnit, setFirstUnit] = useState<FirstUnit>("4");
   const errors = state.fieldErrors ?? {};
 
   return (
-    <form action={formAction} className="max-w-xl">
+    <form onSubmit={onSubmit} className="max-w-xl">
       <Tile className="space-y-4 md:p-6">
         <Field label={p.name} htmlFor="name" error={errors["name"]}>
           <Input
