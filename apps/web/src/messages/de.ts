@@ -572,6 +572,85 @@ export const de = {
     resetSignedIn: (email: string) =>
       `Du bist gerade als ${email} angemeldet. Dieser Link ändert das Passwort des Kontos, an das die Mail ging, nicht unbedingt deins.`,
   },
+  legal: {
+    navLabel: "Rechtliches",
+    imprintTitle: "Impressum",
+    privacyTitle: "Datenschutz",
+    imprintProvider: "Angaben gemäß § 5 DDG",
+    imprintAboutTitle: "Über dieses Angebot",
+    imprintAbout:
+      "SpoolWorks ist ein privates, nicht kommerzielles Projekt. Es gibt keine Werbung und keine kostenpflichtigen Funktionen.",
+    emailLabel: "E-Mail:",
+    missing: "Die Anbieterangaben werden gerade eingetragen.",
+    updated: "Stand: November 2026",
+    registerNote: "Mit dem Konto gilt die Datenschutzerklärung.",
+    settingsTitle: "Rechtliches",
+    controllerTitle: "Verantwortlich",
+    privacySections: [
+      {
+        title: "Kurz gesagt",
+        body: [
+          "SpoolWorks speichert nur, was für dein Konto und deine Werkstatt nötig ist. Es gibt keine Werbung, kein Tracking und keine Analyse-Werkzeuge. Deine Daten sind privat, bis du selbst etwas teilst.",
+        ],
+      },
+      {
+        title: "Hosting und Server-Protokolle",
+        body: [
+          "Die Seite läuft bei Vercel Inc. (USA) in der Region Frankfurt. Bei jedem Aufruf verarbeitet Vercel technische Daten wie IP-Adresse, Zeitpunkt, aufgerufene Adresse und Browserkennung, um die Seite auszuliefern und vor Missbrauch zu schützen. Rechtsgrundlage ist Art. 6 Abs. 1 lit. f DSGVO (sicherer Betrieb).",
+          "Mit Vercel und Neon gelten deren Auftragsverarbeitungsverträge. Werden Daten in die USA übermittelt, stützt sich das auf die Standardvertragsklauseln der EU-Kommission und, soweit der Anbieter zertifiziert ist, auf das EU-US Data Privacy Framework.",
+        ],
+      },
+      {
+        title: "Konto und Werkstatt",
+        body: [
+          "Für dein Konto speichern wir Name, E-Mail-Adresse und dein Passwort (nur als Hash, nie im Klartext). Dazu kommt, was du selbst einträgst: Spulen, Drucker, Drucke, Gewichte, Preise und Notizen.",
+          "Die Datenbank liegt bei Neon Inc. auf Servern in Frankfurt (AWS eu-central-1). Rechtsgrundlage ist Art. 6 Abs. 1 lit. b DSGVO: ohne diese Daten funktioniert dein Konto nicht.",
+        ],
+      },
+      {
+        title: "Anmeldung und Cookies",
+        body: [
+          "Nach der Anmeldung setzt SpoolWorks ein Sitzungs-Cookie, damit du angemeldet bleibst. Zur Sitzung speichern wir IP-Adresse und Browserkennung, um Missbrauch erkennen zu können. Eine Sitzung endet spätestens nach 30 Tagen oder wenn du dich abmeldest.",
+          "Das Cookie ist technisch erforderlich (§ 25 Abs. 2 Nr. 2 TDDDG), deshalb gibt es keinen Cookie-Banner. Ob du das helle oder dunkle Design gewählt hast, merkt sich nur dein Browser.",
+          "Schriften werden von unserem eigenen Server geladen, nicht von Google.",
+        ],
+      },
+      {
+        title: "E-Mails",
+        body: [
+          "Mails zum Zurücksetzen des Passworts und Hinweise, dass dein Passwort geändert wurde, verschicken wir über ein Gmail-Konto (Google Ireland Limited). Dabei verarbeitet Google deine E-Mail-Adresse und den Inhalt der Mail. Rechtsgrundlage ist Art. 6 Abs. 1 lit. b DSGVO.",
+        ],
+      },
+      {
+        title: "Geteilte Drucke und Galerie",
+        body: [
+          "Teilst du einen Druck oder schaltest deine Galerie frei, kann jeder mit dem Link diese Drucke sehen: Name, Datum und Notizen des Drucks, Modell-Link, verwendete Filamente mit Gramm, Druckdauer und Drucker. Dein Lager, Restgewichte und deine E-Mail-Adresse sind nie öffentlich. Wenn du das Teilen beendest, ist der Link sofort ungültig.",
+        ],
+      },
+      {
+        title: "Speicherdauer und Löschen",
+        body: [
+          "Deine Daten bleiben gespeichert, solange dein Konto besteht. In den Einstellungen kannst du dein Konto jederzeit löschen; dabei werden Konto, Werkstatt und alle Einträge sofort entfernt. Links zum Zurücksetzen des Passworts verfallen nach einer Stunde. Server-Protokolle löscht Vercel nach seinen eigenen Fristen.",
+        ],
+      },
+      {
+        title: "Deine Rechte",
+        body: [
+          "Du hast das Recht auf Auskunft, Berichtigung, Löschung, Einschränkung der Verarbeitung und Datenübertragbarkeit (Art. 15 bis 20 DSGVO) sowie das Recht, einer Verarbeitung auf Grundlage berechtigter Interessen zu widersprechen (Art. 21 DSGVO). Schreib dafür an die oben genannte E-Mail-Adresse.",
+          "Außerdem kannst du dich bei einer Datenschutz-Aufsichtsbehörde beschweren (Art. 77 DSGVO).",
+        ],
+      },
+      {
+        title: "Datenschutzhinweise der Dienstleister",
+        body: [],
+        links: [
+          { label: "Vercel", href: "https://vercel.com/legal/privacy-policy" },
+          { label: "Neon (Databricks)", href: "https://neon.com/privacy-policy" },
+          { label: "Google", href: "https://policies.google.com/privacy" },
+        ],
+      },
+    ],
+  },
   common: {
     loading: "Lädt …",
   },

@@ -1,6 +1,7 @@
 import { Suspense } from "react";
 
 import { AuthForm } from "@/components/auth/auth-form";
+import { LegalLinks } from "@/components/legal/legal-links";
 import { Tile } from "@/components/tile";
 import { de } from "@/messages/de";
 
@@ -25,6 +26,10 @@ export function AuthCard({
           <AuthForm mode={mode} />
         </Suspense>
       </Tile>
+      <div className="space-y-1">
+        {mode === "register" && <p className="text-xs text-muted-foreground">{de.legal.registerNote}</p>}
+        <LegalLinks />
+      </div>
     </div>
   );
 }
