@@ -1,4 +1,5 @@
 export * from "./color-terms";
+export * from "./label";
 export * from "./ledger";
 export * from "./ofd";
 export * from "./parse";

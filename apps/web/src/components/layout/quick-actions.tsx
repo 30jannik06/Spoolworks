@@ -1,6 +1,6 @@
 "use client";
 
-import { ChevronRight, PackagePlus, ReceiptText, Scale } from "lucide-react";
+import { ChevronRight, PackagePlus, QrCode, ReceiptText, Scale } from "lucide-react";
 import Link from "next/link";
 import { useEffect } from "react";
 
@@ -19,6 +19,7 @@ const ACTIONS: Action[] = [
   { label: de.quickActions.logPrint, hint: de.quickActions.logPrintHint, icon: ReceiptText, href: "/prints/new" },
   { label: de.quickActions.weighSpool, hint: de.quickActions.weighSpoolHint, icon: Scale, href: "/weigh" },
   { label: de.quickActions.addSpool, hint: de.quickActions.addSpoolHint, icon: PackagePlus, href: "/spools/new" },
+  { label: de.quickActions.openCode, hint: de.quickActions.openCodeHint, icon: QrCode, href: "/s" },
 ];
 
 /**

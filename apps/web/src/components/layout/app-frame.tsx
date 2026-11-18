@@ -28,7 +28,7 @@ export async function AppFrame({ children }: { children: ReactNode }) {
   return (
     <>
       <Sidebar userName={session.user.name} workshopName={workshop.name} />
-      <header className="sticky top-0 z-30 border-b bg-background/90 backdrop-blur md:hidden">
+      <header className="sticky top-0 z-30 border-b bg-background/90 backdrop-blur md:hidden print:hidden">
         <div className="flex h-14 items-center justify-between gap-2 px-4">
           <Link href="/" className="flex min-h-11 items-center gap-2 font-medium tracking-tight">
             <SpoolMark />
@@ -47,8 +47,8 @@ export async function AppFrame({ children }: { children: ReactNode }) {
           </div>
         </div>
       </header>
-      <main className="pb-tabbar flex-1 px-4 pt-5 md:pb-12 md:pl-60">
-        <div className="mx-auto w-full max-w-6xl md:px-10 md:pt-6">{children}</div>
+      <main className="pb-tabbar flex-1 px-4 pt-5 md:pb-12 md:pl-60 print:p-0">
+        <div className="mx-auto w-full max-w-6xl md:px-10 md:pt-6 print:max-w-none print:p-0">{children}</div>
       </main>
       <TabBar />
     </>
