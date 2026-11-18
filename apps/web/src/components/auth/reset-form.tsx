@@ -16,6 +16,8 @@ const a = de.auth;
 /** Redeems a reset link made on /admin. All sessions of the account end. */
 export function ResetForm() {
   const token = useSearchParams().get("token");
+  // Signed in as someone else is fine (the link decides the account), but say so.
+  const { data: session } = authClient.useSession();
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [mismatch, setMismatch] = useState(false);
@@ -64,6 +66,11 @@ export function ResetForm() {
 
   return (
     <form method="post" onSubmit={onSubmit} className="space-y-4">
+      {session?.user.email && (
+        <p role="note" className="rounded-lg border border-border bg-muted/50 p-3 text-sm text-muted-foreground">
+          {a.resetSignedIn(session.user.email)}
+        </p>
+      )}
       <Field label={de.settings.newPassword} htmlFor="newPassword" hint={a.passwordHint}>
         <Input
           id="newPassword"

@@ -36,6 +36,11 @@ vi.mock("next/headers", () => ({
   headers: async () => new Headers(),
 }));
 
+// This file covers the setup without a mail service. The test env loads the
+// root .env, which may hold real SMTP settings; lib/auth.ts reads them at load.
+delete process.env.SMTP_USER;
+delete process.env.SMTP_PASSWORD;
+
 const { createResetLink } = await import("@/app/admin/actions");
 const { auth } = await import("@/lib/auth");
 

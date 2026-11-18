@@ -315,6 +315,11 @@ export const de = {
     resetFallback: "Falls der Knopf nicht geht, kopier diesen Link in den Browser:",
     resetValid: "Der Link gilt eine Stunde und nur einmal.",
     resetIgnore: "Warst du das nicht? Dann ignorier diese Mail, dein Passwort bleibt wie es ist.",
+    changedSubject: "SpoolWorks: Dein Passwort wurde geändert",
+    changedIntro: "das Passwort für deine SpoolWorks-Werkstatt wurde gerade geändert. Alle anderen Geräte sind abgemeldet.",
+    changedOk: "Warst du das? Dann ist alles in Ordnung.",
+    changedNotYou: "Warst du das nicht? Setz das Passwort sofort neu:",
+    changedSupport: (address: string) => `Oder schreib an ${address}.`,
   },
   admin: {
     title: "Verwaltung",
@@ -526,6 +531,8 @@ export const de = {
     resetSubmit: "Passwort speichern",
     resetDone: "Passwort gespeichert. Du kannst dich jetzt anmelden.",
     resetMissingToken: "Der Link ist unvollständig. Bitte öffne ihn noch einmal aus der Mail.",
+    resetSignedIn: (email: string) =>
+      `Du bist gerade als ${email} angemeldet. Dieser Link ändert das Passwort des Kontos, an das die Mail ging, nicht unbedingt deins.`,
   },
   common: {
     loading: "Lädt …",

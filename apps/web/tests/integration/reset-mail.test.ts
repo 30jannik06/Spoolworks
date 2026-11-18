@@ -49,6 +49,12 @@ async function canSignIn(email: string, password: string) {
   }
 }
 
+/** The token at the end of the reset link in a mail's plain-text part. */
+function tokenOf(mail: (typeof sent)[number]): string {
+  const url = mail.text.split("\n").find((line) => line.startsWith("http"))!;
+  return new URL(url).pathname.split("/").at(-1)!;
+}
+
 describe("reset by mail", () => {
   it("mails a link that sets a new password once", async () => {
     const email = `${tag}-mail@spoolworks.test`;
@@ -67,11 +73,44 @@ describe("reset by mail", () => {
 
     const token = new URL(url).pathname.split("/").at(-1)!;
     await auth.api.resetPassword({ body: { newPassword: NEW, token } });
+    expect(sent.map((m) => m.subject)).toEqual(["SpoolWorks: Passwort zurücksetzen", "SpoolWorks: Dein Passwort wurde geändert"]);
+    expect(sent[1]!.to).toBe(email);
     expect(await canSignIn(email, NEW)).toBe(true);
     expect(await canSignIn(email, OLD)).toBe(false);
     await expect(auth.api.resetPassword({ body: { newPassword: "drittes-passwort", token } })).rejects.toMatchObject({
       body: { code: "INVALID_TOKEN" },
     });
+  });
+
+  it("only the newest mailed link works", async () => {
+    const email = `${tag}-twice@spoolworks.test`;
+    await auth.api.signUpEmail({ body: { email, password: OLD, name: "Twice" } });
+    await auth.api.requestPasswordReset({ body: { email } });
+    await auth.api.requestPasswordReset({ body: { email } });
+    const [first, second] = sent.map(tokenOf);
+    await expect(auth.api.resetPassword({ body: { newPassword: NEW, token: first! } })).rejects.toMatchObject({
+      body: { code: "INVALID_TOKEN" },
+    });
+    await auth.api.resetPassword({ body: { newPassword: NEW, token: second! } });
+    expect(await canSignIn(email, NEW)).toBe(true);
+  });
+
+  it("tells the owner when the password was changed in settings", async () => {
+    const email = `${tag}-change@spoolworks.test`;
+    await auth.api.signUpEmail({ body: { email, password: OLD, name: "Change" } });
+    const signIn = await auth.api.signInEmail({ body: { email, password: OLD }, returnHeaders: true });
+    const headers = new Headers({ cookie: signIn.headers.get("set-cookie")?.split(";")[0] ?? "" });
+    sent.length = 0;
+
+    await expect(
+      auth.api.changePassword({ body: { currentPassword: "falsch-falsch", newPassword: NEW }, headers }),
+    ).rejects.toMatchObject({ body: { code: "INVALID_PASSWORD" } });
+    expect(sent).toHaveLength(0); // a failed attempt sends nothing
+
+    await auth.api.changePassword({ body: { currentPassword: OLD, newPassword: NEW, revokeOtherSessions: true }, headers });
+    expect(sent).toHaveLength(1);
+    expect(sent[0]).toMatchObject({ to: email, subject: "SpoolWorks: Dein Passwort wurde geändert" });
+    expect(sent[0]!.text).toContain("/auth/forgot");
   });
 
   it("answers the same for unknown addresses, without sending", async () => {
