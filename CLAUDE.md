@@ -12,6 +12,7 @@ pnpm workspaces + Turborepo.
 | --- | --- | --- |
 | `apps/web` | Next.js 16 App Router: pages, server actions, route handlers, UI, German copy | everything |
 | `apps/catalog-sync` | CLI that imports the Open Filament Database into the product catalog | `core`, `database` |
+| `packages/catalog` | OFD download + sync runner (used by the CLI and the nightly cron) | `core`, `database` |
 | `packages/database` | Prisma 7 schema, migrations, generated client, `prisma` singleton | `@prisma/*` only |
 | `packages/core` | Pure domain logic (weights, ledger, short codes, zod contracts) + Vitest | `zod` only |
 
@@ -39,6 +40,8 @@ pnpm --filter @spoolworks/catalog-sync sync [--dry-run] [--file all.json.gz]   #
 - `ofdUuid` is OFD's stable size UUID; renames are followed through `moved_from`.
 - Only rows with `ofdManaged = true` (created by the import) follow upstream changes. A product a user typed in that matches an OFD product only gets its `ofdUuid` attached and is never overwritten.
 - Materials: OFD's ~40 are grouped into our enum (nylons → `PA`, long tail → `OTHER`).
+- The sync runner lives in `packages/catalog`. It never deletes, and it refuses an empty release or one under 80 % of the imported products before writing anything (`--allow-shrink` for hand-picked files).
+- Production syncs nightly through Vercel Cron (`apps/web/vercel.json`, 03:00 UTC, free on Hobby) at `/api/cron/catalog`. Vercel sends `Authorization: Bearer $CRON_SECRET`. Without `CRON_SECRET` the route answers 404, and a wrong token gets 401. A full run takes about 10 s.
 - The CLI refuses non-local databases without `--allow-remote`. Importing into production is a deliberate manual step, not part of the build.
 
 ## Environment

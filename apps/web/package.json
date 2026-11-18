@@ -13,6 +13,7 @@
   },
   "dependencies": {
     "@better-auth/prisma-adapter": "^1.7.25",
+    "@spoolworks/catalog": "workspace:*",
     "@spoolworks/core": "workspace:*",
     "@spoolworks/database": "workspace:*",
     "@vercel/blob": "2.9.0",

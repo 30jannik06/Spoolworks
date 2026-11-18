@@ -1,5 +1,6 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "regions": ["fra1"],
-  "buildCommand": "cd ../.. && pnpm db:deploy && pnpm turbo run build --filter=@spoolworks/web"
+  "buildCommand": "cd ../.. && pnpm db:deploy && pnpm turbo run build --filter=@spoolworks/web",
+  "crons": [{ "path": "/api/cron/catalog", "schedule": "0 3 * * *" }]
 }
