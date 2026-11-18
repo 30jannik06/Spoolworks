@@ -242,7 +242,7 @@ export const de = {
     archivedSpool: "archiviert",
     edit: "Bearbeiten",
     delete: "Löschen",
-    deleteConfirm: "Druck löschen? Der Verbrauch wird den Spulen wieder gutgeschrieben, außer sie wurden danach gewogen.",
+    deleteConfirm: "Druck löschen? Der Verbrauch wird den Spulen wieder gutgeschrieben, außer sie wurden danach gewogen. Fotos werden mitgelöscht.",
     deleteYes: "Endgültig löschen",
     create: "Druck speichern",
     save: "Änderungen speichern",
@@ -356,6 +356,12 @@ export const de = {
     conflict: "Gleichzeitig geändert. Bitte noch einmal versuchen.",
     spool_has_prints: "Diese Spule steckt in Drucken. Archiviere sie stattdessen.",
     print_not_found: "Diesen Druck gibt es nicht (mehr).",
+    photo_not_found: "Dieses Foto gibt es nicht (mehr).",
+    photo_invalid: "Das Foto konnte nicht gelesen werden. Bitte als JPEG versuchen.",
+    photo_unreadable: "Dieses Bildformat kann dein Browser nicht öffnen. Speicher das Foto als JPEG und versuch es noch einmal.",
+    photo_too_large: "Das Foto ist zu groß.",
+    photo_limit: "Mehr Fotos gehen nicht. Lösch zuerst eins.",
+    photos_disabled: "Fotos sind gerade nicht verfügbar.",
     duplicate_spool: "Diese Spule ist schon in einer anderen Zeile.",
     invalid_duration: "Dauer wie 2:30 oder 90 eingeben.",
     invalid_status: "Status wählen.",
@@ -573,6 +579,21 @@ export const de = {
     resetSignedIn: (email: string) =>
       `Du bist gerade als ${email} angemeldet. Dieser Link ändert das Passwort des Kontos, an das die Mail ging, nicht unbedingt deins.`,
   },
+  photos: {
+    title: "Fotos",
+    add: "Foto hinzufügen",
+    addFirst: "Foto aufnehmen oder auswählen",
+    hint: "Das erste Foto wird das Titelbild. Standortdaten aus dem Foto werden vor dem Hochladen entfernt.",
+    uploading: "Wird hochgeladen …",
+    full: "Mehr Fotos gehen nicht. Lösch eins, um ein neues hinzuzufügen.",
+    cover: "Titelbild",
+    makeCover: "Als Titelbild",
+    coverAlt: "Titelbild des Drucks",
+    photoAlt: (n: number) => `Foto ${n} des Drucks`,
+    delete: "Foto löschen",
+    deleteConfirm: "Foto löschen? Das geht nicht rückgängig.",
+    deleteYes: "Löschen",
+  },
   legal: {
     navLabel: "Rechtliches",
     imprintTitle: "Impressum",
@@ -605,8 +626,14 @@ export const de = {
       {
         title: "Konto und Werkstatt",
         body: [
-          "Für dein Konto speichern wir Name, E-Mail-Adresse und dein Passwort (nur als Hash, nie im Klartext). Dazu kommt, was du selbst einträgst: Spulen, Drucker, Drucke, Gewichte, Preise und Notizen.",
+          "Für dein Konto speichern wir Name, E-Mail-Adresse und dein Passwort (nur als Hash, nie im Klartext). Dazu kommt, was du selbst einträgst: Spulen, Drucker, Drucke, Gewichte, Preise, Notizen und Fotos.",
           "Die Datenbank liegt bei Neon Inc. auf Servern in Frankfurt (AWS eu-central-1). Rechtsgrundlage ist Art. 6 Abs. 1 lit. b DSGVO: ohne diese Daten funktioniert dein Konto nicht.",
+        ],
+      },
+      {
+        title: "Fotos",
+        body: [
+          "Fotos zu deinen Drucken werden schon in deinem Browser verkleinert und neu gespeichert. Dabei fallen die Zusatzdaten der Kamera weg, auch der Aufnahmeort. Gespeichert werden sie im privaten Speicher von Vercel (Vercel Blob, Region Frankfurt); sie sind nicht über eine öffentliche Adresse erreichbar, sondern werden nur nach Prüfung durch SpoolWorks ausgeliefert.",
         ],
       },
       {
@@ -626,13 +653,13 @@ export const de = {
       {
         title: "Geteilte Drucke und Galerie",
         body: [
-          "Teilst du einen Druck oder schaltest deine Galerie frei, kann jeder mit dem Link diese Drucke sehen: Name, Datum und Notizen des Drucks, Modell-Link, verwendete Filamente mit Gramm, Druckdauer und Drucker. Dein Lager, Restgewichte und deine E-Mail-Adresse sind nie öffentlich. Wenn du das Teilen beendest, ist der Link sofort ungültig.",
+          "Teilst du einen Druck oder schaltest deine Galerie frei, kann jeder mit dem Link diese Drucke sehen: Name, Datum, Fotos und Notizen des Drucks, Modell-Link, verwendete Filamente mit Gramm, Druckdauer und Drucker. Dein Lager, Restgewichte und deine E-Mail-Adresse sind nie öffentlich. Wenn du das Teilen beendest, ist der Link sofort ungültig.",
         ],
       },
       {
         title: "Speicherdauer und Löschen",
         body: [
-          "Deine Daten bleiben gespeichert, solange dein Konto besteht. In den Einstellungen kannst du dein Konto jederzeit löschen; dabei werden Konto, Werkstatt und alle Einträge sofort entfernt. Links zum Zurücksetzen des Passworts verfallen nach einer Stunde. Server-Protokolle löscht Vercel nach seinen eigenen Fristen.",
+          "Deine Daten bleiben gespeichert, solange dein Konto besteht. In den Einstellungen kannst du dein Konto jederzeit löschen; dabei werden Konto, Werkstatt, alle Einträge und Fotos sofort entfernt. Links zum Zurücksetzen des Passworts verfallen nach einer Stunde. Server-Protokolle löscht Vercel nach seinen eigenen Fristen.",
         ],
       },
       {

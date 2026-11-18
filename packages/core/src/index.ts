@@ -4,6 +4,7 @@ export * from "./label";
 export * from "./ledger";
 export * from "./ofd";
 export * from "./parse";
+export * from "./photo";
 export * from "./print-input";
 export * from "./printer";
 export * from "./share";

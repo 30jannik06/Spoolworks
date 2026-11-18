@@ -13,6 +13,7 @@ import { refresh } from "next/cache";
 import { redirect } from "next/navigation";
 
 import { fieldErrorsFrom, formToObject, type ActionState } from "@/lib/action-state";
+import { deleteBlobs } from "@/lib/photos";
 import { requireWorkshop } from "@/lib/session";
 import { lockSpool, recomputeRemaining } from "@/lib/spool-ledger";
 
@@ -169,9 +170,17 @@ export async function updatePrint(printId: string, _prev: ActionState, formData:
   redirect(`/prints/${printId}`);
 }
 
-/** Deleting a print gives its grams back (unless a later weighing already counted them). */
+/**
+ * Deleting a print gives its grams back (unless a later weighing already
+ * counted them). Its photos leave Blob first; the rows go with the cascade.
+ */
 export async function deletePrint(printId: string): Promise<ActionState> {
   const { workshop } = await requireWorkshop();
+  const photos = await prisma.printPhoto.findMany({
+    where: { printId, workshopId: workshop.id },
+    select: { pathname: true, thumbPathname: true },
+  });
+  await deleteBlobs(photos.flatMap((photo) => [photo.pathname, photo.thumbPathname]));
   const deleted = await prisma.$transaction(async (tx) => {
     const print = await tx.print.findFirst({
       where: { id: printId, workshopId: workshop.id },

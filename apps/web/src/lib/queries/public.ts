@@ -1,12 +1,21 @@
 import "server-only";
 
-import { isShareToken, normalizeHandle, type Material, type ModelSource, type PrintStatus } from "@spoolworks/core";
+import {
+  isShareToken,
+  normalizeHandle,
+  PRINT_PHOTO_LIMIT,
+  type Material,
+  type ModelSource,
+  type PrintStatus,
+} from "@spoolworks/core";
 import { prisma, type Prisma } from "@spoolworks/database";
 
 /**
  * Reads for pages without a session. They select exactly the fields the
  * owner agreed to publish and nothing else: no ids (print, spool, workshop),
- * no short codes, no remaining weights. Never reuse the private PrintView here.
+ * no short codes, no remaining weights. Photos are addressed by share token
+ * and position (/p/<token>/photos/<n>), never by id. Never reuse the private
+ * PrintView here.
  */
 
 const publicPrintSelect = {
@@ -19,6 +28,7 @@ const publicPrintSelect = {
   modelSource: true,
   notes: true,
   printer: { select: { name: true } },
+  photos: { orderBy: { position: "asc" }, select: { width: true, height: true } },
   usages: {
     orderBy: { grams: "desc" },
     select: {
@@ -61,6 +71,8 @@ export type PublicPrint = {
   modelSource: ModelSource | null;
   notes: string | null;
   printerName: string | null;
+  /** In order, index = position (0 = cover). */
+  photos: { width: number; height: number }[];
   usages: PublicUsage[];
   totalG: number;
 };
@@ -85,6 +97,7 @@ function toPublicPrint(row: PublicPrintRow): PublicPrint | null {
     modelSource: row.modelSource,
     notes: row.notes,
     printerName: row.printer?.name ?? null,
+    photos: row.photos,
     usages,
     totalG: usages.reduce((sum, usage) => sum + usage.grams, 0),
   };
@@ -125,4 +138,15 @@ export async function getPublicGallery(handle: string) {
     handle: workshop.publicHandle,
     prints: workshop.prints.map(toPublicPrint).filter((print): print is PublicPrint => print !== null),
   };
+}
+
+/** One photo of a shared print by position, for the public photo route. Null for anything else. */
+export async function getSharedPhoto(token: string, position: string) {
+  if (!isShareToken(token) || !/^\d{1,2}$/.test(position)) return null;
+  const index = Number(position);
+  if (index >= PRINT_PHOTO_LIMIT) return null;
+  return prisma.printPhoto.findFirst({
+    where: { position: index, print: { shareToken: token } },
+    select: { pathname: true, thumbPathname: true, contentType: true },
+  });
 }
