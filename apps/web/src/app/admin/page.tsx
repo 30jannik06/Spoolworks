@@ -1,12 +1,16 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
 
+import { CatalogSyncButton } from "@/components/admin/catalog-sync-button";
 import { ResetLinkForm } from "@/components/admin/reset-link-form";
 import { Tile } from "@/components/tile";
-import { requireAdmin } from "@/lib/admin";
+import { catalogSyncByHand, requireAdmin } from "@/lib/admin";
 import { de } from "@/messages/de";
 
 export const metadata: Metadata = { robots: { index: false } };
+
+/** The manual catalog sync runs as a server action of this page. */
+export const maxDuration = 300;
 
 export default function AdminPage() {
   return (
@@ -29,6 +33,15 @@ async function Admin() {
         </div>
         <ResetLinkForm />
       </Tile>
+      {catalogSyncByHand() && (
+        <Tile className="space-y-4 md:p-6">
+          <div>
+            <h2 className="font-medium">{de.admin.syncTitle}</h2>
+            <p className="mt-1 text-sm text-muted-foreground">{de.admin.syncBody}</p>
+          </div>
+          <CatalogSyncButton />
+        </Tile>
+      )}
     </div>
   );
 }
