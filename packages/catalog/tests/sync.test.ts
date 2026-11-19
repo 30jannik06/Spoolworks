@@ -130,4 +130,27 @@ describe("syncCatalog", () => {
     expect(without).toMatchObject({ updated: 0, spoolman: "unavailable" });
     expect((await find()).spoolWeightG).toBe(190);
   });
+
+  it("stores the spool's and the refill's barcodes of imported products only, once", async () => {
+    const withCodes: OfdDataset = {
+      ...dataset("#404040"),
+      sizes: [
+        { id: "s1", uuid: "zz-test-u1", variant_id: "v1", filament_weight: 1000, diameter: 1.75, gtin: "4012345000016" },
+        { id: "s1r", uuid: "zz-test-u1r", variant_id: "v1", filament_weight: 1000, diameter: 1.75, spool_refill: true, gtin: "4012345000023" },
+        { id: "s2", uuid: "zz-test-u2", variant_id: "v2", filament_weight: 1000, diameter: 1.75, gtin: "4012345000030" },
+      ],
+    };
+    const first = await syncCatalog(prisma, withCodes, { allowShrink: true });
+    expect(first.barcodesAdded).toBe(2);
+    const codes = await prisma.productBarcode.findMany({
+      where: { product: { brand: { nameKey: KEY } } },
+      orderBy: { code: "asc" },
+      select: { code: true, refill: true, product: { select: { ofdUuid: true, ofdManaged: true } } },
+    });
+    expect(codes).toEqual([
+      { code: "4012345000016", refill: false, product: { ofdUuid: "zz-test-u1", ofdManaged: true } },
+      { code: "4012345000023", refill: true, product: { ofdUuid: "zz-test-u1", ofdManaged: true } },
+    ]);
+    expect(await syncCatalog(prisma, withCodes, { allowShrink: true })).toMatchObject({ barcodesAdded: 0 });
+  });
 });
