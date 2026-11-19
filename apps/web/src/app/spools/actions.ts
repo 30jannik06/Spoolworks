@@ -1,6 +1,7 @@
 "use server";
 
 import {
+  barcodeCandidates,
   brandKey,
   correctionInput,
   createSpoolInput,
@@ -14,7 +15,7 @@ import { refresh } from "next/cache";
 import { redirect } from "next/navigation";
 
 import { fieldErrorsFrom, formToObject, type ActionState } from "@/lib/action-state";
-import { searchProducts as searchCatalog, type ProductOption } from "@/lib/queries/spools";
+import { findProductsByBarcode, searchProducts as searchCatalog, type ProductOption } from "@/lib/queries/spools";
 import { requireWorkshop } from "@/lib/session";
 import { appendAnchor } from "@/lib/spool-ledger";
 
@@ -211,9 +212,15 @@ export async function deleteSpool(spoolId: string): Promise<ActionState> {
   redirect("/spools");
 }
 
-/** Catalog lookup for the picker. Signed-in only; the catalog itself holds no personal data. */
+/**
+ * Catalog lookup for the picker. Signed-in only; the catalog itself holds no
+ * personal data. A query that is a barcode (scanned, typed or from a USB
+ * scanner) looks up the stored codes; anything else searches by name.
+ */
 export async function findProducts(query: string): Promise<ProductOption[]> {
   await requireWorkshop();
   if (query.trim().length < 2) return [];
+  const codes = barcodeCandidates(query);
+  if (codes.length > 0) return findProductsByBarcode(codes);
   return searchCatalog(query);
 }
