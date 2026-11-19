@@ -4,6 +4,7 @@ import { Suspense } from "react";
 
 import { AppFrame, AppFrameFallback } from "@/components/layout/app-frame";
 import { ThemeProvider } from "@/components/theme/theme-provider";
+import { siteOrigin } from "@/lib/site-origin";
 import { de } from "@/messages/de";
 
 import "./globals.css";
@@ -12,8 +13,19 @@ const geistSans = Geist({ variable: "--font-sans", subsets: ["latin"] });
 const geistMono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"] });
 
 export const metadata: Metadata = {
+  // Absolute URLs for the preview image and og:url.
+  metadataBase: new URL(siteOrigin()),
   title: { default: de.app.name, template: `%s · ${de.app.name}` },
-  description: de.app.tagline,
+  description: de.app.description,
+  // The image itself comes from app/opengraph-image.tsx.
+  openGraph: {
+    type: "website",
+    locale: "de_DE",
+    siteName: de.app.name,
+    title: de.app.name,
+    description: de.app.description,
+  },
+  twitter: { card: "summary_large_image" },
   // iOS ignores most of the manifest: this makes "Zum Home-Bildschirm" open full screen.
   appleWebApp: { capable: true, title: de.app.name, statusBarStyle: "default" },
 };

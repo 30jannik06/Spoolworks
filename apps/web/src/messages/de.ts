@@ -7,6 +7,15 @@ export const de = {
   app: {
     name: "SpoolWorks",
     tagline: "Filament-Lager und Druck-Galerie, die zusammen rechnen.",
+    /** Search results and link previews (Discord, WhatsApp, …). */
+    description:
+      "Filament-Lager und Druck-Galerie für den 3D-Druck: Jeder Druck bucht seine Gramm von der Spule ab, damit dir mitten im Druck nichts ausgeht. Privat und kostenlos.",
+  },
+  /** The link preview image (app/opengraph-image.tsx). */
+  linkPreview: {
+    alt: "SpoolWorks: Dein Filament. Deine Drucke. Ein Ort.",
+    headline: ["Dein Filament.", "Deine Drucke.", "Ein Ort."],
+    domain: "spoolworks.de",
   },
   nav: {
     signIn: "Anmelden",
