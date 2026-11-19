@@ -12,6 +12,12 @@ import type { PrismaClient } from "@spoolworks/database";
 
 const CREATE_CHUNK = 1000;
 const UPDATE_CHUNK = 200;
+/** A release with fewer products than this share of the imported ones is treated as broken. */
+const MIN_RELEASE_SHARE = 0.8;
+const DOWNLOAD_TIMEOUT_MS = 60_000;
+
+/** Thrown before anything is written when a release looks truncated or empty. */
+export class CatalogReleaseSuspiciousError extends Error {}
 
 export type SyncReport = {
   version: string;
@@ -28,7 +34,10 @@ export type SyncReport = {
 
 /** Downloads the daily OFD release (~3 MB gzipped). */
 export async function fetchOfdDataset(url = OFD_DATASET_URL): Promise<OfdDataset> {
-  const response = await fetch(url, { headers: { "user-agent": "SpoolWorks catalog-sync" } });
+  const response = await fetch(url, {
+    headers: { "user-agent": "SpoolWorks catalog-sync" },
+    signal: AbortSignal.timeout(DOWNLOAD_TIMEOUT_MS),
+  });
   if (!response.ok) throw new Error(`OFD download failed: ${response.status} ${response.statusText}`);
   const bytes = Buffer.from(await response.arrayBuffer());
   return JSON.parse(gunzipSync(bytes).toString("utf8")) as OfdDataset;
@@ -61,13 +70,17 @@ function productData(product: CatalogProduct, brandId: string) {
  * Brings the global product catalog in line with an OFD release. Products
  * users typed in are never overwritten: at most the OFD UUID is attached.
  * Spools reference products by id, so nothing here touches anyone's inventory.
+ * Nothing is ever deleted. A release that is empty or much smaller than what
+ * was imported before stops the run before any write (`allowShrink` turns
+ * that check off for test fixtures and hand-picked files).
  */
 export async function syncCatalog(
   prisma: PrismaClient,
   data: OfdDataset,
-  { dryRun = false }: { dryRun?: boolean } = {},
+  { dryRun = false, allowShrink = false }: { dryRun?: boolean; allowShrink?: boolean } = {},
 ): Promise<SyncReport> {
   const mapped = mapOfdDataset(data);
+  if (mapped.products.length === 0) throw new CatalogReleaseSuspiciousError("OFD release has no products");
 
   const existingRows = await prisma.filamentProduct.findMany({
     select: {
@@ -87,6 +100,12 @@ export async function syncCatalog(
     },
   });
   const existing = existingRows.map(({ brand, ...row }) => ({ ...row, brandKey: brand.nameKey }));
+  const imported = existing.filter((row) => row.ofdManaged).length;
+  if (!allowShrink && mapped.products.length < imported * MIN_RELEASE_SHARE) {
+    throw new CatalogReleaseSuspiciousError(
+      `OFD release has ${mapped.products.length} products, the catalog holds ${imported} imported ones; refusing to sync`,
+    );
+  }
   const plan = planCatalogSync(existing, mapped.products);
 
   const report: SyncReport = {
