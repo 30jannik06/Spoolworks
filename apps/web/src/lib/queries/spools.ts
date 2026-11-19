@@ -262,10 +262,40 @@ export async function searchProducts(query: string) {
       })),
     },
     include: { brand: true },
-    orderBy: [{ discontinued: "asc" }, { brand: { name: "asc" } }, { productLine: "asc" }, { colorName: "asc" }],
+    orderBy: productOrder,
     take: 20,
   });
-  return rows.map((row) => ({
+  return rows.map((row) => productOption(row, false));
+}
+
+/**
+ * Catalog products carrying one of these barcodes (see `barcodeCandidates`).
+ * A code is unique per product only, so this can return several. `refill`
+ * says the code was printed on the spool-less refill version.
+ */
+export async function findProductsByBarcode(codes: string[]): Promise<ProductOption[]> {
+  if (codes.length === 0) return [];
+  const rows = await prisma.filamentProduct.findMany({
+    where: { barcodes: { some: { code: { in: codes } } } },
+    include: { brand: true, barcodes: { where: { code: { in: codes } }, select: { refill: true } } },
+    orderBy: productOrder,
+    take: 20,
+  });
+  // Refill only when every matching code of the product is a refill code.
+  return rows.map((row) => productOption(row, row.barcodes.every((barcode) => barcode.refill)));
+}
+
+const productOrder = [
+  { discontinued: "asc" },
+  { brand: { name: "asc" } },
+  { productLine: "asc" },
+  { colorName: "asc" },
+] satisfies Prisma.FilamentProductOrderByWithRelationInput[];
+
+type ProductRow = Prisma.FilamentProductGetPayload<{ include: { brand: true } }>;
+
+function productOption(row: ProductRow, refill: boolean) {
+  return {
     id: row.id,
     brand: row.brand.name,
     productLine: row.productLine,
@@ -276,7 +306,9 @@ export async function searchProducts(query: string) {
     diameterUm: row.diameterUm,
     spoolWeightG: row.spoolWeightG,
     discontinued: row.discontinued,
-  }));
+    /** Found through a refill barcode: the user's own spool, so the catalog's empty-spool weight does not apply. */
+    refill,
+  };
 }
 
-export type ProductOption = Awaited<ReturnType<typeof searchProducts>>[number];
+export type ProductOption = ReturnType<typeof productOption>;

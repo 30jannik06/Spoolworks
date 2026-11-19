@@ -80,8 +80,19 @@ export const de = {
     modeNew: "Neues Produkt",
     search: "Suchen",
     searchPlaceholder: "Bambu PLA Basic Schwarz",
-    searchHint: "Mindestens 2 Zeichen. Farbnamen meist englisch. Der Katalog enthält nur Produktdaten, keine Spulen anderer.",
+    searchHint:
+      "Name oder Strichcode-Nummer, mindestens 2 Zeichen. Farbnamen meist englisch. Der Katalog enthält nur Produktdaten, keine Spulen anderer.",
     searchEmpty: "Nichts gefunden. Leg das Produkt neu an.",
+    scan: "Scannen",
+    scanTitle: "Strichcode scannen",
+    scanHint: "Halte den Strichcode vom Karton oder Spulen-Etikett in den Rahmen. Das Kamerabild bleibt auf deinem Gerät.",
+    scanDenied: "Kein Zugriff auf die Kamera. Erlaube ihn in den Einstellungen des Browsers, oder tipp die Nummer unter dem Strichcode ins Suchfeld.",
+    scanNoCamera: "Keine Kamera gefunden. Tipp die Nummer unter dem Strichcode ins Suchfeld.",
+    scanUnsupported: "Dein Browser gibt hier keine Kamera frei. Tipp die Nummer unter dem Strichcode ins Suchfeld.",
+    scanFailed: "Die Kamera ließ sich nicht starten. Versuch es noch einmal oder tipp die Nummer ins Suchfeld.",
+    barcodeNotFound: (code: string) =>
+      `Kein Produkt mit dem Strichcode ${code} im Katalog. Such nach dem Namen oder leg das Produkt neu an.`,
+    refillHint: "Über den Code der Nachfüllpackung gefunden: Trag das Gewicht deiner eigenen leeren Spule ein.",
     change: "Ändern",
     discontinued: "nicht mehr erhältlich",
     diameterShort: (um: number) => `${(um / 1000).toLocaleString("de-DE")} mm`,
@@ -658,6 +669,12 @@ export const de = {
         title: "Fotos",
         body: [
           "Fotos zu deinen Drucken werden schon in deinem Browser verkleinert und neu gespeichert. Dabei fallen die Zusatzdaten der Kamera weg, auch der Aufnahmeort. Gespeichert werden sie im privaten Speicher von Vercel (Vercel Blob, Region Frankfurt); sie sind nicht über eine öffentliche Adresse erreichbar, sondern werden nur nach Prüfung durch SpoolWorks ausgeliefert.",
+        ],
+      },
+      {
+        title: "Strichcode scannen",
+        body: [
+          "Beim Scannen eines Strichcodes nutzt SpoolWorks die Kamera nur, solange das Scan-Fenster offen ist und du es erlaubt hast. Das Kamerabild wird in deinem Browser ausgewertet und weder gespeichert noch übertragen. An den Server geht nur die erkannte Nummer, damit das passende Produkt im Katalog gefunden wird.",
         ],
       },
       {
