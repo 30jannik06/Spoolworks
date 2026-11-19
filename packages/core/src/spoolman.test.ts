@@ -77,6 +77,7 @@ describe("planCatalogSync and empty-spool weights", () => {
     netWeightG: 1000,
     spoolWeightG,
     ean: null,
+    barcodes: [],
     discontinued: false,
   });
   const existing = (spoolWeightG: number | null): ExistingProduct => ({
