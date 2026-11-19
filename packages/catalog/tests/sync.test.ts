@@ -114,4 +114,20 @@ describe("syncCatalog", () => {
     const empty: OfdDataset = { version: "empty", brands: [], filaments: [], variants: [], sizes: [] };
     await expect(syncCatalog(prisma, empty, { allowShrink: true })).rejects.toThrow(CatalogReleaseSuspiciousError);
   });
+
+  it("fills a missing empty-spool weight from SpoolmanDB and keeps it when SpoolmanDB is unreachable", async () => {
+    const withGap: OfdDataset = {
+      ...dataset("#404040"),
+      sizes: [{ id: "s3", uuid: "zz-test-u3", variant_id: "v1", filament_weight: 500, diameter: 1.75 }],
+    };
+    const spoolman = [{ manufacturer: BRAND, material: "PLA", weight: 500, diameter: 1.75, spool_weight: 190 }];
+    const filled = await syncCatalog(prisma, withGap, { allowShrink: true, spoolman });
+    expect(filled).toMatchObject({ created: 1, spoolman: 1 });
+    const find = () => prisma.filamentProduct.findUniqueOrThrow({ where: { ofdUuid: "zz-test-u3" } });
+    expect((await find()).spoolWeightG).toBe(190);
+
+    const without = await syncCatalog(prisma, withGap, { allowShrink: true });
+    expect(without).toMatchObject({ updated: 0, spoolman: "unavailable" });
+    expect((await find()).spoolWeightG).toBe(190);
+  });
 });

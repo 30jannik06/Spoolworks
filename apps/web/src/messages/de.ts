@@ -484,7 +484,12 @@ export const de = {
     ctaTitle: "Bereit für deine Werkstatt?",
     ctaBody: "Ein Konto, eine Werkstatt. Deine Daten bleiben privat.",
     footer: "SpoolWorks · Filament-Lager und Druck-Galerie",
-    catalogCredit: "Produktkatalog: Open Filament Database (MIT)",
+    catalogCredit: {
+      label: "Produktkatalog:",
+      ofd: "Open Filament Database",
+      spoolman: "SpoolmanDB",
+      license: "(beide MIT)",
+    },
   },
   stats: {
     title: "Statistik",
