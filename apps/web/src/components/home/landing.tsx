@@ -25,14 +25,27 @@ export function Landing() {
             <SpoolMark className="size-5" />
             {t.footer}
           </span>
-          <a
-            href="https://github.com/OpenFilamentCollective/open-filament-database"
-            target="_blank"
-            rel="noreferrer"
-            className="text-xs underline-offset-4 hover:text-foreground hover:underline"
-          >
-            {t.catalogCredit}
-          </a>
+          <span className="text-xs">
+            {t.catalogCredit.label}{" "}
+            <a
+              href="https://github.com/OpenFilamentCollective/open-filament-database"
+              target="_blank"
+              rel="noreferrer"
+              className="underline-offset-4 hover:text-foreground hover:underline"
+            >
+              {t.catalogCredit.ofd}
+            </a>
+            {" · "}
+            <a
+              href="https://github.com/Donkie/SpoolmanDB"
+              target="_blank"
+              rel="noreferrer"
+              className="underline-offset-4 hover:text-foreground hover:underline"
+            >
+              {t.catalogCredit.spoolman}
+            </a>{" "}
+            {t.catalogCredit.license}
+          </span>
           <LegalLinks />
         </div>
       </footer>

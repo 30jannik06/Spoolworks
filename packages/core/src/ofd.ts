@@ -1,5 +1,6 @@
 import { brandKey, normalizeHexColor } from "./parse";
 import type { Material } from "./spool-input";
+import type { SpoolWeightQuery } from "./spoolman";
 
 /**
  * Open Filament Database (MIT, https://github.com/OpenFilamentCollective/open-filament-database).
@@ -47,7 +48,13 @@ export type CatalogProduct = {
   discontinued: boolean;
 };
 
-export type MapResult = { products: CatalogProduct[]; invalid: number; merged: number };
+export type MapResult = {
+  products: CatalogProduct[];
+  invalid: number;
+  merged: number;
+  /** Products whose empty-spool weight came from the `spoolWeight` lookup, not from OFD. */
+  spoolWeightsFilled: number;
+};
 
 const DIRECT: ReadonlySet<string> = new Set(["PLA", "PETG", "ABS", "ASA", "TPU", "PC", "PET", "HIPS", "PVA"]);
 const NYLON: ReadonlySet<string> = new Set(["PA", "PA6", "PA11", "PA12", "PA66", "PPA"]);
@@ -92,7 +99,7 @@ export function catalogKey(p: {
   return [brand, p.productLine, p.material, p.colorName, p.diameterUm, p.netWeightG].join("\u0000");
 }
 
-type Candidate = CatalogProduct & { refill: boolean };
+type Candidate = CatalogProduct & { refill: boolean; rawMaterial: string };
 
 function rank(c: Candidate): number[] {
   // Lower sorts first: real spools, barcode known, still sold, empty weight known.
@@ -115,7 +122,10 @@ function compare(a: Candidate, b: Candidate): number {
  * empty-spool weight is recorded per owned spool anyway. Rows that collapse onto
  * one product keep a deterministic winner; the others' UUIDs go to `movedFrom`.
  */
-export function mapOfdDataset(data: OfdDataset): MapResult {
+export function mapOfdDataset(
+  data: OfdDataset,
+  { spoolWeight }: { spoolWeight?: (query: SpoolWeightQuery) => number | null } = {},
+): MapResult {
   const brands = new Map(data.brands.map((b) => [b.id, b]));
   const filaments = new Map(data.filaments.map((f) => [f.id, f]));
   const variants = new Map(data.variants.map((v) => [v.id, v]));
@@ -169,6 +179,7 @@ export function mapOfdDataset(data: OfdDataset): MapResult {
       ean: normalizeBarcode(size.gtin ?? size.barcode_identifier),
       discontinued: Boolean(size.discontinued || variant.discontinued || filament.discontinued),
       refill: size.spool_refill === true || size.container_material?.toLowerCase() === "refill",
+      rawMaterial: filament.material,
     };
 
     const key = catalogKey(candidate);
@@ -178,23 +189,31 @@ export function mapOfdDataset(data: OfdDataset): MapResult {
   }
 
   let merged = 0;
+  let spoolWeightsFilled = 0;
   const products: CatalogProduct[] = [];
   for (const group of groups.values()) {
     group.sort(compare);
     const [winner, ...rest] = group as [Candidate, ...Candidate[]];
     merged += rest.length;
-    const { refill: _refill, ...product } = winner;
+    const { refill: _refill, rawMaterial, ...product } = winner;
+    // OFD's own weight wins; the lookup only fills a gap.
+    let spoolWeightG =
+      winner.spoolWeightG ?? group.find((c) => !c.refill && c.spoolWeightG !== null)?.spoolWeightG ?? null;
+    if (spoolWeightG === null && spoolWeight) {
+      spoolWeightG = spoolWeight({ brandName: product.brandName, material: rawMaterial, netWeightG: product.netWeightG, diameterUm: product.diameterUm });
+      if (spoolWeightG !== null) spoolWeightsFilled++;
+    }
     products.push({
       ...product,
       movedFrom: [...new Set([...group.flatMap((c) => c.movedFrom), ...rest.map((c) => c.ofdUuid)])].filter(
         (uuid) => uuid !== winner.ofdUuid,
       ),
-      spoolWeightG: winner.spoolWeightG ?? group.find((c) => !c.refill && c.spoolWeightG !== null)?.spoolWeightG ?? null,
+      spoolWeightG,
       ean: winner.ean ?? group.find((c) => c.ean)?.ean ?? null,
       discontinued: group.every((c) => c.discontinued),
     });
   }
-  return { products, invalid, merged };
+  return { products, invalid, merged, spoolWeightsFilled };
 }
 
 /** What the database holds today, reduced to what the sync compares. */
@@ -258,7 +277,7 @@ export function planCatalogSync(existing: ExistingProduct[], incoming: CatalogPr
   const plan: SyncPlan = { create: [], update: [], link: [], unchanged: 0, conflicts: 0 };
   const claimed = new Set<string>();
 
-  for (const product of incoming) {
+  for (let product of incoming) {
     const key = catalogKey(product);
     const match =
       byUuid.get(product.ofdUuid) ??
@@ -275,6 +294,11 @@ export function planCatalogSync(existing: ExistingProduct[], incoming: CatalogPr
         if (match.ofdUuid === product.ofdUuid) plan.unchanged++;
         else plan.link.push({ id: match.id, ofdUuid: product.ofdUuid });
         continue;
+      }
+      // A known empty-spool weight is never cleared: a missing value upstream (or
+      // an unreachable SpoolmanDB) keeps what the row already has.
+      if (product.spoolWeightG === null && match.spoolWeightG !== null) {
+        product = { ...product, spoolWeightG: match.spoolWeightG };
       }
       if (!differs(match, product)) {
         plan.unchanged++;

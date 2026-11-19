@@ -332,9 +332,19 @@ export const de = {
     linkLabel: "Link (1 Stunde gültig)",
     copy: "Kopieren",
     copied: "Kopiert",
+    syncTitle: "Katalog jetzt abgleichen",
+    syncBody:
+      "Lädt die aktuelle Open Filament Database und SpoolmanDB und gleicht den Katalog dieser Umgebung ab. Nur in Preview und lokal; Production gleicht jede Nacht von selbst ab. Dauert bis zu zwei Minuten, die Seite dabei offen lassen.",
+    syncButton: "Jetzt abgleichen",
+    syncRunning: "Gleicht ab …",
+    syncDone: (r: { version: string; created: number; updated: number; unchanged: number; spoolman: number | "unavailable"; seconds: number }) =>
+      `Fertig in ${r.seconds} s (OFD ${r.version}): ${r.created} neu, ${r.updated} aktualisiert, ${r.unchanged} unverändert. ` +
+      (r.spoolman === "unavailable" ? "SpoolmanDB war nicht erreichbar." : `${r.spoolman} Leergewichte aus SpoolmanDB.`),
   },
   errors: {
     invalid_input: "Bitte prüf die markierten Felder.",
+    sync_failed: "Abgleich fehlgeschlagen (Download oder Datenbank). Der Katalog bleibt, wie er war; später noch mal versuchen.",
+    sync_suspicious: "Die OFD-Daten sehen unvollständig aus. Abgleich abgebrochen, bevor etwas geändert wurde.",
     required: "Pflichtfeld.",
     too_long: "Zu lang.",
     invalid_grams: "Ganze Gramm eingeben, z. B. 1000.",
@@ -484,7 +494,12 @@ export const de = {
     ctaTitle: "Bereit für deine Werkstatt?",
     ctaBody: "Ein Konto, eine Werkstatt. Deine Daten bleiben privat.",
     footer: "SpoolWorks · Filament-Lager und Druck-Galerie",
-    catalogCredit: "Produktkatalog: Open Filament Database (MIT)",
+    catalogCredit: {
+      label: "Produktkatalog:",
+      ofd: "Open Filament Database",
+      spoolman: "SpoolmanDB",
+      license: "(beide MIT)",
+    },
   },
   stats: {
     title: "Statistik",

@@ -45,7 +45,7 @@ async function main() {
 
   // Import after the env check: the client connects on load.
   const { prisma } = await import("@spoolworks/database");
-  const { fetchOfdDataset, syncCatalog } = await import("@spoolworks/catalog");
+  const { fetchOfdDataset, fetchSpoolmanDb, syncCatalog } = await import("@spoolworks/catalog");
 
   const data: OfdDataset = values.file
     ? (JSON.parse(
@@ -56,8 +56,13 @@ async function main() {
       ) as OfdDataset)
     : await fetchOfdDataset();
 
+  const spoolman = await fetchSpoolmanDb();
   const started = Date.now();
-  const report = await syncCatalog(prisma, data, { dryRun: values["dry-run"], allowShrink: values["allow-shrink"] });
+  const report = await syncCatalog(prisma, data, {
+    dryRun: values["dry-run"],
+    allowShrink: values["allow-shrink"],
+    spoolman,
+  });
   console.log(JSON.stringify({ ...report, seconds: Math.round((Date.now() - started) / 1000) }, null, 2));
   await prisma.$disconnect();
 }
