@@ -79,6 +79,7 @@ Agreed direction (2026-11-17): near-black (`#0e0e0d`) / warm paper (`#f4f3ef`) b
 - Building blocks in `components/tile.tsx`: `Tile` (surface), `Eyebrow` (small spaced uppercase label), `Figure` (big mono number + unit). Utilities `.eyebrow`, `.figure`, `.pb-tabbar` in `globals.css`.
 - Signed-in pages sit above a fixed bottom tab bar with a centre "+" (quick actions). Content must keep `pb-tabbar` room.
 - **Icons and errors:** favicon, `icon.png`, `apple-icon.png` (in `app/`) and the manifest icons (`public/icons`, plus a maskable one with safe-zone padding) are rendered from the SpoolMark glyph on the dark background by `apps/web/scripts/make_icons.py`; rerun it if the glyph changes. `not-found.tsx`, `error.tsx` (uses `retry()`) and `global-error.tsx` share `components/errors/error-screen.tsx`; the 404 copy never says whether a thing exists.
+- **Link preview:** `app/opengraph-image.tsx` (1200×630, `next/og`) plus `openGraph`/`twitter` in the root layout (`metadataBase` from `siteOrigin()`). Fonts are TTFs in `apps/web/assets/fonts` (Geist, OFL), read via `process.cwd()`: never from `node_modules` (pnpm symlinks are missing in the Vercel function, ENOENT). Load every weight the image uses, and keep long words out of wrapped text (Satori leaves gaps).
 - Planned components for later phases: segmented pill control, spool ring, numeric keypad for weighing.
 - No decorative fake data: empty states say what's missing.
 
