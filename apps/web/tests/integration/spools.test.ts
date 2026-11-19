@@ -31,7 +31,7 @@ vi.mock("next/navigation", () => ({
   },
 }));
 
-const { createSpool, weighSpool, correctSpool, updateSpool, setSpoolArchived, deleteSpool } = await import(
+const { createSpool, weighSpool, correctSpool, updateSpool, setSpoolArchived, deleteSpool, findProducts } = await import(
   "@/app/spools/actions"
 );
 const { getSpool, listSpools } = await import("@/lib/queries/spools");
@@ -200,5 +200,49 @@ describe("workshop isolation", () => {
     await expect(deleteSpool(spoolId)).rejects.toThrow("redirect /spools");
     expect(await prisma.spool.findUnique({ where: { id: spoolId } })).toBeNull();
     expect(await prisma.spoolLedgerEntry.count({ where: { spoolId } })).toBe(0);
+  });
+});
+
+describe("findProducts by barcode", () => {
+  // Random 12-digit codes so the real catalog in the local database never matches.
+  const digits = () => String(Math.floor(Math.random() * 1e11)).padStart(11, "0");
+  const spoolCode = `9${digits()}`;
+  const refillCode = `8${digits()}`;
+  let productId: string;
+
+  beforeAll(async () => {
+    const brand = await prisma.brand.create({ data: { name: `${tag} Scan`, nameKey: `${tag} scan` } });
+    const product = await prisma.filamentProduct.create({
+      data: {
+        brandId: brand.id,
+        productLine: "PLA Scan",
+        material: "PLA",
+        colorName: "Black",
+        colorHex: "#000000",
+        diameterUm: 1750,
+        netWeightG: 1000,
+        spoolWeightG: 250,
+        barcodes: { create: [{ code: spoolCode }, { code: refillCode, refill: true }] },
+      },
+    });
+    productId = product.id;
+  });
+
+  it("finds a product by its code, also in the 13-digit form with a leading 0", async () => {
+    caller = alice;
+    expect((await findProducts(spoolCode)).map((p) => [p.id, p.refill])).toEqual([[productId, false]]);
+    expect((await findProducts(`0${spoolCode}`)).map((p) => p.id)).toEqual([productId]);
+  });
+
+  it("marks a hit through the refill code, so the catalog spool weight is not used", async () => {
+    caller = alice;
+    expect((await findProducts(refillCode)).map((p) => [p.id, p.refill])).toEqual([[productId, true]]);
+  });
+
+  it("finds nothing for an unknown code and refuses a guest", async () => {
+    caller = alice;
+    expect(await findProducts("4006381333931")).toEqual([]);
+    caller = null;
+    await expect(findProducts(spoolCode)).rejects.toThrow("redirect /auth/login");
   });
 });

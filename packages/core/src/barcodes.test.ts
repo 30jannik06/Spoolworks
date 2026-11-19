@@ -1,6 +1,29 @@
 import { describe, expect, it } from "vitest";
 
-import { mapOfdDataset, planBarcodes, type OfdDataset } from "./ofd";
+import { barcodeCandidates, mapOfdDataset, planBarcodes, type OfdDataset } from "./ofd";
+
+describe("barcodeCandidates", () => {
+  it("pairs a UPC-A with its EAN-13 form and back", () => {
+    expect(barcodeCandidates("012345678905")).toEqual(["012345678905", "0012345678905"]);
+    expect(barcodeCandidates("0012345678905")).toEqual(["0012345678905", "012345678905"]);
+  });
+
+  it("keeps a plain EAN-13 and an EAN-8 as they are", () => {
+    expect(barcodeCandidates("4250786312345")).toEqual(["4250786312345"]);
+    expect(barcodeCandidates("96385074")).toEqual(["96385074"]);
+  });
+
+  it("cleans scanner noise and GTIN-14 padding", () => {
+    expect(barcodeCandidates(" 4250-7863-12345 ")).toEqual(["4250786312345"]);
+    expect(barcodeCandidates("04250786312345")).toEqual(["4250786312345"]);
+  });
+
+  it("returns nothing for text that is no barcode", () => {
+    expect(barcodeCandidates("PLA Basic")).toEqual([]);
+    expect(barcodeCandidates("12345")).toEqual([]);
+    expect(barcodeCandidates(null)).toEqual([]);
+  });
+});
 
 function dataset(sizes: Partial<OfdDataset["sizes"][number]>[]): OfdDataset {
   return {

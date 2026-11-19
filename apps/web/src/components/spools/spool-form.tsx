@@ -1,7 +1,7 @@
 "use client";
 
-import { MATERIALS } from "@spoolworks/core";
-import { Check, Search } from "lucide-react";
+import { barcodeCandidates, MATERIALS } from "@spoolworks/core";
+import { Check, ScanBarcode, Search } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState, useTransition } from "react";
 
@@ -11,6 +11,7 @@ import { DatePicker } from "@/components/form/date-picker";
 import { Field, Select, inputClass } from "@/components/form/field";
 import { Segmented } from "@/components/segmented";
 import { SpoolRing } from "@/components/spool-ring";
+import { BarcodeScanner } from "@/components/spools/barcode-scanner";
 import { Tile } from "@/components/tile";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -68,7 +69,8 @@ export function SpoolForm(props: Props) {
         <ProductSection
           errors={errors}
           onPick={(product) => {
-            if (product.spoolWeightG !== null) setEmptySpool(String(product.spoolWeightG));
+            // A refill goes onto the user's own spool: the catalog's spool weight does not apply.
+            if (product.spoolWeightG !== null && !product.refill) setEmptySpool(String(product.spoolWeightG));
             setInitialNet(String(product.netWeightG));
           }}
         />
@@ -176,6 +178,25 @@ function ProductSection({
   const [picked, setPicked] = useState<ProductOption | null>(null);
   const [searching, startSearch] = useTransition();
   const [colorName, setColorName] = useState("");
+  const [scanning, setScanning] = useState(false);
+  const isBarcode = barcodeCandidates(query).length > 0;
+
+  function pick(product: ProductOption) {
+    setPicked(product);
+    onPick(product);
+  }
+
+  // A scanned code searches at once; exactly one product is picked right away.
+  function onScanned(code: string) {
+    setScanning(false);
+    setPicked(null);
+    setQuery(code);
+    startSearch(async () => {
+      const found = await findProducts(code);
+      setResults(found);
+      if (found.length === 1) pick(found[0]!);
+    });
+  }
 
   // Debounced catalog search through a server action.
   useEffect(() => {
@@ -202,38 +223,50 @@ function ProductSection({
 
       {mode === "existing" ? (
         picked ? (
-          <div className="flex items-center gap-3 rounded-lg border p-3">
-            <input type="hidden" name="productId" value={picked.id} />
-            <SpoolRing fraction={1} color={picked.colorHex} size={40} thickness={5} />
-            <div className="min-w-0 flex-1">
-              <p className="truncate text-sm font-medium">
-                {picked.productLine} {picked.colorName}
-              </p>
-              <p className="truncate text-xs text-muted-foreground">
-                {productMeta(picked)}
-              </p>
+          <div className="space-y-2">
+            <div className="flex items-center gap-3 rounded-lg border p-3">
+              <input type="hidden" name="productId" value={picked.id} />
+              <SpoolRing fraction={1} color={picked.colorHex} size={40} thickness={5} />
+              <div className="min-w-0 flex-1">
+                <p className="truncate text-sm font-medium">
+                  {picked.productLine} {picked.colorName}
+                </p>
+                <p className="truncate text-xs text-muted-foreground">
+                  {productMeta(picked)}
+                </p>
+              </div>
+              <Button type="button" variant="outline" className="h-10" onClick={() => setPicked(null)}>
+                {f.change}
+              </Button>
             </div>
-            <Button type="button" variant="outline" className="h-10" onClick={() => setPicked(null)}>
-              {f.change}
-            </Button>
+            {picked.refill && <p className="text-sm text-muted-foreground">{f.refillHint}</p>}
           </div>
         ) : (
           <div className="space-y-2">
             <Field label={f.search} htmlFor="product-search" hint={f.searchHint} error={errors["productId"]}>
-              <div className="relative">
-                <Search className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
-                <Input
-                  id="product-search"
-                  value={query}
-                  onChange={(event) => setQuery(event.target.value)}
-                  placeholder={f.searchPlaceholder}
-                  className={`${inputClass} pl-9`}
-                  autoComplete="off"
-                />
+              <div className="flex gap-2">
+                <div className="relative flex-1">
+                  <Search className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
+                  <Input
+                    id="product-search"
+                    value={query}
+                    onChange={(event) => setQuery(event.target.value)}
+                    placeholder={f.searchPlaceholder}
+                    className={`${inputClass} pl-9`}
+                    autoComplete="off"
+                  />
+                </div>
+                <Button type="button" variant="outline" className="h-11 shrink-0 px-3" onClick={() => setScanning(true)}>
+                  <ScanBarcode aria-hidden="true" />
+                  {f.scan}
+                </Button>
               </div>
             </Field>
+            <BarcodeScanner open={scanning} onOpenChange={setScanning} onDetected={onScanned} />
             {query.trim().length >= 2 && !searching && results.length === 0 && (
-              <p className="text-sm text-muted-foreground">{f.searchEmpty}</p>
+              <p className="text-sm text-muted-foreground">
+                {isBarcode ? f.barcodeNotFound(query.trim()) : f.searchEmpty}
+              </p>
             )}
             {results.length > 0 && (
               <ul className="divide-y rounded-lg border">
@@ -241,10 +274,7 @@ function ProductSection({
                   <li key={product.id}>
                     <button
                       type="button"
-                      onClick={() => {
-                        setPicked(product);
-                        onPick(product);
-                      }}
+                      onClick={() => pick(product)}
                       className="flex min-h-12 w-full items-center gap-3 px-3 py-2 text-left hover:bg-accent/60"
                     >
                       <span className="size-5 shrink-0 rounded-full border" style={{ backgroundColor: product.colorHex }} />
