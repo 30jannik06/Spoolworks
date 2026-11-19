@@ -7,7 +7,7 @@ import { de } from "@/messages/de";
 
 /**
  * The link preview (Discord, WhatsApp, iMessage, …) for every page that does
- * not bring its own. Rendered once at build time. Raw colours on purpose: an
+ * not bring its own. Rendered on request (a few ms). Raw colours on purpose: an
  * image has no CSS variables, these are the dark theme's tokens from globals.css.
  */
 export const alt = de.linkPreview.alt;
@@ -19,7 +19,8 @@ const FOREGROUND = "#f2f1ec";
 const PRIMARY = "#f2b33d";
 const BORDER = "#262624";
 
-const fontDir = join(process.cwd(), "node_modules", "geist", "dist", "fonts");
+/** Geist (OFL, assets/fonts/OFL.txt), copied into the repo so file tracing ships it with the function. */
+const fontDir = join(process.cwd(), "assets", "fonts");
 
 /** SpoolMark (components/layout/spool-mark.tsx) as a plain SVG with fixed colours. */
 function Mark({ size: px }: { size: number }) {
@@ -35,9 +36,9 @@ function Mark({ size: px }: { size: number }) {
 export default async function OpenGraphImage() {
   // Every weight used below must be loaded, or Satori measures with one face and draws with another.
   const [regular, medium, mono] = await Promise.all([
-    readFile(join(fontDir, "geist-sans", "Geist-Regular.ttf")),
-    readFile(join(fontDir, "geist-sans", "Geist-Medium.ttf")),
-    readFile(join(fontDir, "geist-mono", "GeistMono-Regular.ttf")),
+    readFile(join(fontDir, "Geist-Regular.ttf")),
+    readFile(join(fontDir, "Geist-Medium.ttf")),
+    readFile(join(fontDir, "GeistMono-Regular.ttf")),
   ]);
   const s = de.linkPreview;
 
