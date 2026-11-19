@@ -633,6 +633,7 @@ export const de = {
     navLabel: "Rechtliches",
     imprintTitle: "Impressum",
     privacyTitle: "Datenschutz",
+    sourceTitle: "Quellcode",
     imprintProvider: "Angaben gemäß § 5 DDG",
     imprintAboutTitle: "Über dieses Angebot",
     imprintAbout:
