@@ -77,6 +77,7 @@ describe("mapOfdDataset", () => {
         netWeightG: 750,
         spoolWeightG: 250,
         ean: "6975337032878",
+        barcodes: [{ code: "6975337032878", refill: false }],
         discontinued: false,
       },
     ]);
@@ -136,6 +137,7 @@ function product(overrides: Partial<CatalogProduct> = {}): CatalogProduct {
     netWeightG: 1000,
     spoolWeightG: 250,
     ean: null,
+    barcodes: [],
     discontinued: false,
     ...overrides,
   };

@@ -45,8 +45,12 @@ export type CatalogProduct = {
   netWeightG: number;
   spoolWeightG: number | null;
   ean: string | null;
+  /** Every barcode of the merged OFD rows (spool and refill), one entry per code. */
+  barcodes: ProductBarcode[];
   discontinued: boolean;
 };
+
+export type ProductBarcode = { code: string; refill: boolean };
 
 export type MapResult = {
   products: CatalogProduct[];
@@ -116,6 +120,16 @@ function compare(a: Candidate, b: Candidate): number {
   return a.ofdUuid < b.ofdUuid ? -1 : a.ofdUuid > b.ofdUuid ? 1 : 0;
 }
 
+/** All codes of a merged group; a code on both a spool and a refill row counts as the spool's. */
+function mergeBarcodes(group: Candidate[]): ProductBarcode[] {
+  const byCode = new Map<string, ProductBarcode>();
+  for (const barcode of group.flatMap((c) => c.barcodes)) {
+    const seen = byCode.get(barcode.code);
+    if (!seen || (seen.refill && !barcode.refill)) byCode.set(barcode.code, barcode);
+  }
+  return [...byCode.values()].sort((a, b) => Number(a.refill) - Number(b.refill) || a.code.localeCompare(b.code));
+}
+
 /**
  * Turns the OFD tables into SpoolWorks products: one per size (colour × weight × diameter).
  * A refill and the same filament on a spool are one product here, because the
@@ -177,10 +191,15 @@ export function mapOfdDataset(
       netWeightG,
       spoolWeightG: typeof empty === "number" && empty > 0 && empty <= 2000 ? Math.round(empty) : null,
       ean: normalizeBarcode(size.gtin ?? size.barcode_identifier),
+      barcodes: [],
       discontinued: Boolean(size.discontinued || variant.discontinued || filament.discontinued),
       refill: size.spool_refill === true || size.container_material?.toLowerCase() === "refill",
       rawMaterial: filament.material,
     };
+    for (const raw of [size.gtin, size.barcode_identifier]) {
+      const code = normalizeBarcode(raw);
+      if (code && !candidate.barcodes.some((b) => b.code === code)) candidate.barcodes.push({ code, refill: candidate.refill });
+    }
 
     const key = catalogKey(candidate);
     const group = groups.get(key);
@@ -210,6 +229,7 @@ export function mapOfdDataset(
       ),
       spoolWeightG,
       ean: winner.ean ?? group.find((c) => c.ean)?.ean ?? null,
+      barcodes: mergeBarcodes(group),
       discontinued: group.every((c) => c.discontinued),
     });
   }
@@ -345,4 +365,32 @@ export function planCatalogSync(existing: ExistingProduct[], incoming: CatalogPr
     });
   }
   return plan;
+}
+
+export type BarcodeInsert = { productId: string; code: string; refill: boolean };
+
+/**
+ * Which barcodes to add for products the import manages. Only adds: a code
+ * that disappears upstream stays, like every other fact the catalog once had.
+ * `productIdByUuid` holds only `ofdManaged` rows, so user products get none.
+ * `existing` holds "productId\u0000code" keys.
+ */
+export function planBarcodes(
+  products: Pick<CatalogProduct, "ofdUuid" | "barcodes">[],
+  productIdByUuid: ReadonlyMap<string, string>,
+  existing: ReadonlySet<string>,
+): BarcodeInsert[] {
+  const out: BarcodeInsert[] = [];
+  const planned = new Set(existing);
+  for (const product of products) {
+    const productId = productIdByUuid.get(product.ofdUuid);
+    if (!productId) continue;
+    for (const { code, refill } of product.barcodes) {
+      const key = `${productId}\u0000${code}`;
+      if (planned.has(key)) continue;
+      planned.add(key);
+      out.push({ productId, code, refill });
+    }
+  }
+  return out;
 }
