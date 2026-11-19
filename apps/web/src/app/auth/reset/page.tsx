@@ -5,7 +5,7 @@ import { ResetForm } from "@/components/auth/reset-form";
 import { Tile } from "@/components/tile";
 import { de } from "@/messages/de";
 
-export const metadata: Metadata = { robots: { index: false } };
+export const metadata: Metadata = { title: de.auth.resetTitle, robots: { index: false } };
 
 export default function ResetPage() {
   return (
