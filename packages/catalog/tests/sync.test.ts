@@ -2,7 +2,7 @@ import type { OfdDataset } from "@spoolworks/core";
 import { prisma } from "@spoolworks/database";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 
-import { syncCatalog } from "../src/sync";
+import { CatalogReleaseSuspiciousError, syncCatalog } from "../src";
 
 // A brand no real catalog has, so the test never touches imported data.
 const BRAND = "Zz Sync Test Brand";
@@ -58,7 +58,7 @@ describe("syncCatalog", () => {
       },
     });
 
-    const report = await syncCatalog(prisma, dataset());
+    const report = await syncCatalog(prisma, dataset(), { allowShrink: true });
     expect(report).toMatchObject({ created: 1, linked: 1, updated: 0, merged: 1 });
 
     const rows = await products();
@@ -71,13 +71,13 @@ describe("syncCatalog", () => {
 
   it("changes nothing on a second run", async () => {
     const before = await products();
-    const report = await syncCatalog(prisma, dataset());
+    const report = await syncCatalog(prisma, dataset(), { allowShrink: true });
     expect(report).toMatchObject({ created: 0, updated: 0, linked: 0, conflicts: 0 });
     expect(await products()).toEqual(before);
   });
 
   it("updates an imported product when OFD changes it", async () => {
-    const report = await syncCatalog(prisma, dataset("#202020"));
+    const report = await syncCatalog(prisma, dataset("#202020"), { allowShrink: true });
     expect(report).toMatchObject({ created: 0, updated: 1, linked: 0 });
     const black = (await products()).find((r) => r.colorName === "Black");
     expect(black?.colorHex).toBe("#202020");
@@ -85,8 +85,33 @@ describe("syncCatalog", () => {
 
   it("reports without writing in a dry run", async () => {
     const before = await products();
-    const report = await syncCatalog(prisma, dataset("#303030"), { dryRun: true });
+    const report = await syncCatalog(prisma, dataset("#303030"), { dryRun: true, allowShrink: true });
     expect(report).toMatchObject({ updated: 1, dryRun: true });
     expect(await products()).toEqual(before);
+  });
+
+  it("refuses a release far smaller than the imported catalog, before writing anything", async () => {
+    // Ten imported products of the test brand, so the check has something to compare against.
+    const brand = await prisma.brand.findFirstOrThrow({ where: { nameKey: KEY } });
+    await prisma.filamentProduct.createMany({
+      data: Array.from({ length: 10 }, (_, i) => ({
+        brandId: brand.id,
+        ofdUuid: `zz-test-extra-${i}`,
+        ofdManaged: true,
+        productLine: "PLA Extra",
+        material: "PLA" as const,
+        colorName: `Extra ${i}`,
+        colorHex: "#123456",
+        netWeightG: 1000,
+      })),
+    });
+    const before = await products();
+    await expect(syncCatalog(prisma, dataset("#404040"))).rejects.toThrow(CatalogReleaseSuspiciousError);
+    expect(await products()).toEqual(before);
+  });
+
+  it("refuses an empty release even when shrinking is allowed", async () => {
+    const empty: OfdDataset = { version: "empty", brands: [], filaments: [], variants: [], sizes: [] };
+    await expect(syncCatalog(prisma, empty, { allowShrink: true })).rejects.toThrow(CatalogReleaseSuspiciousError);
   });
 });
