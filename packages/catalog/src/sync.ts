@@ -4,6 +4,7 @@ import {
   brandKey,
   mapOfdDataset,
   OFD_DATASET_URL,
+  planBarcodes,
   planCatalogSync,
   SPOOLMAN_DB_URL,
   spoolWeightLookup,
@@ -33,6 +34,8 @@ export type SyncReport = {
   linked: number;
   unchanged: number;
   conflicts: number;
+  /** Barcodes added to imported products (spool and refill codes). */
+  barcodesAdded: number;
   dryRun: boolean;
 };
 
@@ -147,9 +150,13 @@ export async function syncCatalog(
     linked: plan.link.length,
     unchanged: plan.unchanged,
     conflicts: plan.conflicts,
+    barcodesAdded: 0,
     dryRun,
   };
-  if (dryRun) return report;
+  if (dryRun) {
+    report.barcodesAdded = await addBarcodes(prisma, mapped.products, true);
+    return report;
+  }
 
   // Brands first: products need their ids. Existing brands keep their display name.
   const needed = new Map<string, string>();
@@ -195,5 +202,28 @@ export async function syncCatalog(
       batch.map(({ id, ofdUuid }) => prisma.filamentProduct.update({ where: { id }, data: { ofdUuid } })),
     );
   }
+  report.barcodesAdded = await addBarcodes(prisma, mapped.products, false);
   return report;
+}
+
+/**
+ * Adds every OFD barcode of imported products that is not stored yet (after
+ * the products exist, so new ones get theirs in the same run). Never deletes,
+ * never touches products users typed in.
+ */
+async function addBarcodes(prisma: PrismaClient, products: CatalogProduct[], dryRun: boolean): Promise<number> {
+  const [managed, stored] = await Promise.all([
+    prisma.filamentProduct.findMany({ where: { ofdManaged: true, ofdUuid: { not: null } }, select: { id: true, ofdUuid: true } }),
+    prisma.productBarcode.findMany({ select: { productId: true, code: true } }),
+  ]);
+  const idByUuid = new Map(managed.map((row) => [row.ofdUuid as string, row.id]));
+  const existing = new Set(stored.map((row) => `${row.productId}\u0000${row.code}`));
+  const inserts = planBarcodes(products, idByUuid, existing);
+  if (dryRun) return inserts.length;
+  let added = 0;
+  for (const batch of chunks(inserts, CREATE_CHUNK)) {
+    const { count } = await prisma.productBarcode.createMany({ data: batch, skipDuplicates: true });
+    added += count;
+  }
+  return added;
 }
