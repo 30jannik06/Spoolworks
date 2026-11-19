@@ -1,6 +1,6 @@
 import { timingSafeEqual } from "node:crypto";
 
-import { CatalogReleaseSuspiciousError, fetchOfdDataset, syncCatalog } from "@spoolworks/catalog";
+import { CatalogReleaseSuspiciousError, fetchOfdDataset, fetchSpoolmanDb, syncCatalog } from "@spoolworks/catalog";
 import { prisma } from "@spoolworks/database";
 import { connection } from "next/server";
 
@@ -28,8 +28,8 @@ export async function GET(request: Request) {
 
   const started = Date.now();
   try {
-    const data = await fetchOfdDataset();
-    const report = await syncCatalog(prisma, data);
+    const [data, spoolman] = await Promise.all([fetchOfdDataset(), fetchSpoolmanDb()]);
+    const report = await syncCatalog(prisma, data, { spoolman });
     const result = { ok: true, ms: Date.now() - started, ...report };
     console.log("catalog sync", JSON.stringify(result));
     return Response.json(result);

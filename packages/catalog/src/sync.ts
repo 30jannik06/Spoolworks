@@ -5,6 +5,8 @@ import {
   mapOfdDataset,
   OFD_DATASET_URL,
   planCatalogSync,
+  SPOOLMAN_DB_URL,
+  spoolWeightLookup,
   type CatalogProduct,
   type OfdDataset,
 } from "@spoolworks/core";
@@ -24,6 +26,8 @@ export type SyncReport = {
   products: number;
   invalid: number;
   merged: number;
+  /** Empty-spool weights taken from SpoolmanDB; "unavailable" when it could not be loaded. */
+  spoolman: number | "unavailable";
   created: number;
   updated: number;
   linked: number;
@@ -41,6 +45,25 @@ export async function fetchOfdDataset(url = OFD_DATASET_URL): Promise<OfdDataset
   if (!response.ok) throw new Error(`OFD download failed: ${response.status} ${response.statusText}`);
   const bytes = Buffer.from(await response.arrayBuffer());
   return JSON.parse(gunzipSync(bytes).toString("utf8")) as OfdDataset;
+}
+
+/**
+ * Downloads SpoolmanDB's compiled filament list (~6 MB, MIT). Optional: on
+ * any failure this returns null and the OFD sync runs without it; known
+ * empty-spool weights are never cleared (see planCatalogSync).
+ */
+export async function fetchSpoolmanDb(url = SPOOLMAN_DB_URL): Promise<unknown[] | null> {
+  try {
+    const response = await fetch(url, {
+      headers: { "user-agent": "SpoolWorks catalog-sync" },
+      signal: AbortSignal.timeout(DOWNLOAD_TIMEOUT_MS),
+    });
+    if (!response.ok) return null;
+    const rows: unknown = await response.json();
+    return Array.isArray(rows) && rows.length > 0 ? rows : null;
+  } catch {
+    return null;
+  }
 }
 
 function chunks<T>(items: T[], size: number): T[][] {
@@ -70,16 +93,21 @@ function productData(product: CatalogProduct, brandId: string) {
  * Brings the global product catalog in line with an OFD release. Products
  * users typed in are never overwritten: at most the OFD UUID is attached.
  * Spools reference products by id, so nothing here touches anyone's inventory.
- * Nothing is ever deleted. A release that is empty or much smaller than what
+ * Empty-spool weights OFD lacks come from SpoolmanDB when `spoolman` rows
+ * are passed. Nothing is ever deleted. A release that is empty or much smaller than what
  * was imported before stops the run before any write (`allowShrink` turns
  * that check off for test fixtures and hand-picked files).
  */
 export async function syncCatalog(
   prisma: PrismaClient,
   data: OfdDataset,
-  { dryRun = false, allowShrink = false }: { dryRun?: boolean; allowShrink?: boolean } = {},
+  {
+    dryRun = false,
+    allowShrink = false,
+    spoolman = null,
+  }: { dryRun?: boolean; allowShrink?: boolean; spoolman?: unknown[] | null } = {},
 ): Promise<SyncReport> {
-  const mapped = mapOfdDataset(data);
+  const mapped = mapOfdDataset(data, spoolman ? { spoolWeight: spoolWeightLookup(spoolman) } : {});
   if (mapped.products.length === 0) throw new CatalogReleaseSuspiciousError("OFD release has no products");
 
   const existingRows = await prisma.filamentProduct.findMany({
@@ -113,6 +141,7 @@ export async function syncCatalog(
     products: mapped.products.length,
     invalid: mapped.invalid,
     merged: mapped.merged,
+    spoolman: spoolman ? mapped.spoolWeightsFilled : "unavailable",
     created: plan.create.length,
     updated: plan.update.length,
     linked: plan.link.length,

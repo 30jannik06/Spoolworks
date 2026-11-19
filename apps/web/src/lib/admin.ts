@@ -10,6 +10,11 @@ export function isAdmin(email: string | null | undefined): boolean {
   return isAdminEmail(email, parseAdminEmails(process.env.ADMIN_EMAILS));
 }
 
+/** The manual catalog sync exists everywhere except production (which has the nightly cron). */
+export function catalogSyncByHand(): boolean {
+  return process.env.VERCEL_ENV !== "production";
+}
+
 /**
  * For admin pages and actions: signed in and listed in ADMIN_EMAILS, otherwise
  * 404 (the admin area does not exist for anyone else). Reads the request.
