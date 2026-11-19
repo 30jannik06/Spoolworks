@@ -79,6 +79,20 @@ export function normalizeBarcode(raw: string | null | undefined): string | null 
   return [8, 12, 13, 14].includes(digits.length) ? digits : null;
 }
 
+/**
+ * The stored codes a scanned or typed barcode can match. A UPC-A (12 digits)
+ * is the same number as the EAN-13 with a leading 0, and scanners and OFD
+ * disagree on which form they report, so both are tried. Empty when the input
+ * is no barcode at all.
+ */
+export function barcodeCandidates(raw: string | null | undefined): string[] {
+  const code = normalizeBarcode(raw);
+  if (!code) return [];
+  if (code.length === 12) return [code, `0${code}`];
+  if (code.length === 13 && code.startsWith("0")) return [code, code.slice(1)];
+  return [code];
+}
+
 /** "Polymaker PolyTerra PLA" under brand "Polymaker" → "PolyTerra PLA". */
 export function stripBrandPrefix(brandName: string, productLine: string): string {
   const prefix = `${brandName.trim()} `;
