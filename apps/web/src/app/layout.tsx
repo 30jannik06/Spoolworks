@@ -12,7 +12,7 @@ const geistSans = Geist({ variable: "--font-sans", subsets: ["latin"] });
 const geistMono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: de.app.name,
+  title: { default: de.app.name, template: `%s · ${de.app.name}` },
   description: de.app.tagline,
   // iOS ignores most of the manifest: this makes "Zum Home-Bildschirm" open full screen.
   appleWebApp: { capable: true, title: de.app.name, statusBarStyle: "default" },
