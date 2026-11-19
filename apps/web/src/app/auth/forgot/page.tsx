@@ -1,4 +1,5 @@
 import { Mail } from "lucide-react";
+import type { Metadata } from "next";
 import Link from "next/link";
 
 import { ForgotForm } from "@/components/auth/forgot-form";
@@ -8,6 +9,8 @@ import { mailConfigured, supportEmail } from "@/lib/mail";
 import { de } from "@/messages/de";
 
 const a = de.auth;
+
+export const metadata: Metadata = { title: a.forgotTitle };
 
 /**
  * With SMTP configured the page mails a reset link. Without it, it points to
