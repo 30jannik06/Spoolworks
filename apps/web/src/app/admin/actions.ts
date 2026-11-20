@@ -1,6 +1,6 @@
 "use server";
 
-import { CatalogReleaseSuspiciousError, fetchOfdDataset, fetchSpoolmanDb, syncCatalog, type SyncReport } from "@spoolworks/catalog";
+import { CatalogReleaseSuspiciousError, runCatalogSync, type SyncReport } from "@spoolworks/catalog";
 import { generateShareToken, RESET_LINK_TTL_SECONDS, resetLinkInput } from "@spoolworks/core";
 import { prisma } from "@spoolworks/database";
 import { notFound } from "next/navigation";
@@ -52,8 +52,7 @@ export async function syncCatalogNow(): Promise<CatalogSyncResult> {
   if (!catalogSyncByHand()) notFound();
   const started = Date.now();
   try {
-    const [data, spoolman] = await Promise.all([fetchOfdDataset(), fetchSpoolmanDb()]);
-    const report = await syncCatalog(prisma, data, { spoolman });
+    const report = await runCatalogSync(prisma, "MANUAL");
     return { ok: true, report: { ...report, seconds: Math.round((Date.now() - started) / 1000) } };
   } catch (error) {
     console.error("manual catalog sync failed", error instanceof Error ? error.message : error);

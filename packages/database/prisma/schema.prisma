@@ -194,6 +194,32 @@ model ProductBarcode {
   @@index([code])
 }
 
+enum CatalogSyncTrigger {
+  /// Nightly Vercel Cron in production.
+  CRON
+  /// "Katalog jetzt abgleichen" on /admin (previews and local).
+  MANUAL
+}
+
+/// One row per catalog sync run, so the outcome outlives Vercel's short log
+/// retention and shows on /admin. Global, no personal data. One row a night:
+/// small enough to keep.
+model CatalogSyncRun {
+  id         String             @id @default(cuid())
+  trigger    CatalogSyncTrigger
+  startedAt  DateTime
+  durationMs Int
+  ok         Boolean
+  /// The SyncReport of a successful run.
+  report     Json?
+  /// Failed runs: true when the release looked truncated and nothing was written.
+  suspicious Boolean            @default(false)
+  /// Failed runs: the error message (admins only, shortened).
+  error      String?
+
+  @@index([startedAt])
+}
+
 // ─── Inventory (owned by a workshop) ─────────────────────────────────────────
 
 enum SpoolStatus {

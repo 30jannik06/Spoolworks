@@ -360,6 +360,17 @@ export const de = {
     syncDone: (r: { version: string; created: number; updated: number; unchanged: number; spoolman: number | "unavailable"; seconds: number }) =>
       `Fertig in ${r.seconds} s (OFD ${r.version}): ${r.created} neu, ${r.updated} aktualisiert, ${r.unchanged} unverändert. ` +
       (r.spoolman === "unavailable" ? "SpoolmanDB war nicht erreichbar." : `${r.spoolman} Leergewichte aus SpoolmanDB.`),
+    runsTitle: "Katalog-Abgleiche",
+    runsBody: "Die letzten Läufe in dieser Umgebung. Production gleicht jede Nacht um 03:00 UTC von selbst ab.",
+    runsEmpty: "Noch kein Abgleich aufgezeichnet.",
+    runsOverdue:
+      "Seit über 36 Stunden kein erfolgreicher nächtlicher Abgleich. In Vercel prüfen, ob der Cron-Job läuft und CRON_SECRET gesetzt ist.",
+    runTrigger: { CRON: "Nacht", MANUAL: "Von Hand" },
+    runOk: (r: { version: string; created: number; updated: number; barcodesAdded: number; spoolman: number | "unavailable" }) =>
+      `OFD ${r.version}: ${r.created} neu, ${r.updated} aktualisiert, ${r.barcodesAdded} Strichcodes neu, ` +
+      (r.spoolman === "unavailable" ? "SpoolmanDB nicht erreichbar" : `${r.spoolman} Leergewichte aus SpoolmanDB`),
+    runSuspicious: "Abgebrochen: Die OFD-Daten sahen unvollständig aus, nichts wurde geändert.",
+    runFailed: (message: string | null) => `Fehlgeschlagen${message ? `: ${message}` : ""}`,
   },
   errors: {
     invalid_input: "Bitte prüf die markierten Felder.",
