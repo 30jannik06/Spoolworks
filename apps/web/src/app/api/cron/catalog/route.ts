@@ -1,6 +1,6 @@
 import { timingSafeEqual } from "node:crypto";
 
-import { CatalogReleaseSuspiciousError, fetchOfdDataset, fetchSpoolmanDb, syncCatalog } from "@spoolworks/catalog";
+import { CatalogReleaseSuspiciousError, runCatalogSync } from "@spoolworks/catalog";
 import { prisma } from "@spoolworks/database";
 import { connection } from "next/server";
 
@@ -10,7 +10,8 @@ import { connection } from "next/server";
  * $CRON_SECRET`; without that secret configured the route does not exist.
  * The sync never deletes, refuses truncated releases before writing, and
  * leaves products users typed in alone, so a failed night just means the
- * catalog stays as it was until the next one.
+ * catalog stays as it was until the next one. Every run is recorded as a
+ * CatalogSyncRun and listed on /admin (Hobby keeps runtime logs only briefly).
  */
 export const maxDuration = 300;
 
@@ -28,8 +29,7 @@ export async function GET(request: Request) {
 
   const started = Date.now();
   try {
-    const [data, spoolman] = await Promise.all([fetchOfdDataset(), fetchSpoolmanDb()]);
-    const report = await syncCatalog(prisma, data, { spoolman });
+    const report = await runCatalogSync(prisma, "CRON");
     const result = { ok: true, ms: Date.now() - started, ...report };
     console.log("catalog sync", JSON.stringify(result));
     return Response.json(result);

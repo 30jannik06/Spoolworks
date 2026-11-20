@@ -1,6 +1,7 @@
 "use client";
 
 import { RefreshCw } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 
 import { syncCatalogNow, type CatalogSyncResult } from "@/app/admin/actions";
@@ -12,6 +13,7 @@ import { de } from "@/messages/de";
 export function CatalogSyncButton() {
   const [result, setResult] = useState<CatalogSyncResult | null>(null);
   const [pending, startTransition] = useTransition();
+  const router = useRouter();
 
   return (
     <div className="space-y-3">
@@ -21,7 +23,10 @@ export function CatalogSyncButton() {
         disabled={pending}
         onClick={() => {
           setResult(null);
-          startTransition(async () => setResult(await syncCatalogNow()));
+          startTransition(async () => {
+            setResult(await syncCatalogNow());
+            router.refresh(); // the run list above shows the new run
+          });
         }}
       >
         <RefreshCw className={pending ? "animate-spin" : undefined} aria-hidden="true" />
