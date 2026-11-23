@@ -1,5 +1,8 @@
 import { supportEmail } from "@/lib/mail";
 
+/** AGPL-3.0: the running app offers its source in the imprint and the terms, not in every footer. */
+export const SOURCE_URL = "https://github.com/30jannik06/Spoolworks";
+
 export type Imprint = {
   name: string;
   /** Postal address, one entry per line. */

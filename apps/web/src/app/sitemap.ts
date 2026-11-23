@@ -10,5 +10,6 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: `${origin}/auth/register`, changeFrequency: "yearly", priority: 0.5 },
     { url: `${origin}/impressum`, changeFrequency: "yearly", priority: 0.2 },
     { url: `${origin}/datenschutz`, changeFrequency: "yearly", priority: 0.2 },
+    { url: `${origin}/nutzungsbedingungen`, changeFrequency: "yearly", priority: 0.2 },
   ];
 }
