@@ -20,7 +20,7 @@ describe("landingJsonLd", () => {
   it("names the site and links the app to it", () => {
     const [site, app] = landingJsonLd()["@graph"];
     expect(site).toMatchObject({ "@type": "WebSite", name: "SpoolWorks" });
-    expect(app).toMatchObject({ "@type": "WebApplication", isPartOf: { "@id": site["@id"] } });
+    expect(app).toMatchObject({ "@type": "WebApplication", isPartOf: { "@id": site?.["@id"] } });
   });
 });
 
