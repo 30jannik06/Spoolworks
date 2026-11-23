@@ -178,7 +178,7 @@ function Features() {
             return (
               <Tile key={feature.title} className="flex flex-col gap-4 p-5">
                 <span className="flex size-10 items-center justify-center rounded-lg border bg-background">
-                  <Icon className="size-5 text-primary" aria-hidden="true" />
+                  <Icon className="size-5 text-primary-ink" aria-hidden="true" />
                 </span>
                 <div>
                   <h3 className="font-medium tracking-tight">{feature.title}</h3>
@@ -201,7 +201,7 @@ function Steps() {
         <ol className="mt-8 grid border-t md:grid-cols-3 md:border-t-0 md:border-l">
           {t.steps.map((step, index) => (
             <li key={step.title} className="border-b py-6 md:border-r md:border-b-0 md:px-6 md:py-2">
-              <span className="figure text-sm text-primary">0{index + 1}</span>
+              <span className="figure text-sm text-primary-ink">0{index + 1}</span>
               <h3 className="mt-2 text-lg font-medium tracking-tight">{step.title}</h3>
               <p className="mt-1 text-sm text-muted-foreground">{step.body}</p>
             </li>

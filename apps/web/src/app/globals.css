@@ -30,6 +30,7 @@
   --color-secondary: var(--secondary);
   --color-primary-foreground: var(--primary-foreground);
   --color-primary: var(--primary);
+  --color-primary-ink: var(--primary-ink);
   --color-popover-foreground: var(--popover-foreground);
   --color-popover: var(--popover);
   --color-card-foreground: var(--card-foreground);
@@ -58,6 +59,8 @@
   --popover: #ffffff;
   --popover-foreground: #151514;
   --primary: #e3a11f;
+  /* Accent as text or icon on paper: #e3a11f only reaches 2:1 there. 5.1:1 on the background. */
+  --primary-ink: #8f5c06;
   --primary-foreground: #2a1d03;
   --secondary: #ecebe5;
   --secondary-foreground: #151514;
@@ -66,7 +69,8 @@
   --accent: #efede7;
   --accent-foreground: #151514;
   --destructive: #c8422a;
-  --warning: #c9541f;
+  /* 5.4:1 on the background, 4.8:1 on its own 10 % tint. */
+  --warning: #a8431a;
   --success: #2f8f6b;
   --border: #e4e2dc;
   --input: #d9d7d0;
@@ -87,6 +91,7 @@
   --popover: #1c1c1a;
   --popover-foreground: #f2f1ec;
   --primary: #f2b33d;
+  --primary-ink: #f2b33d;
   --primary-foreground: #241a05;
   --secondary: #1f1f1d;
   --secondary-foreground: #f2f1ec;
