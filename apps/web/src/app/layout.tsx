@@ -4,6 +4,7 @@ import { Suspense } from "react";
 
 import { AppFrame, AppFrameFallback } from "@/components/layout/app-frame";
 import { ThemeProvider } from "@/components/theme/theme-provider";
+import { openGraphBase } from "@/lib/seo";
 import { siteOrigin } from "@/lib/site-origin";
 import { de } from "@/messages/de";
 
@@ -19,9 +20,7 @@ export const metadata: Metadata = {
   description: de.app.description,
   // The image itself comes from app/opengraph-image.tsx.
   openGraph: {
-    type: "website",
-    locale: "de_DE",
-    siteName: de.app.name,
+    ...openGraphBase,
     title: de.app.name,
     description: de.app.description,
   },

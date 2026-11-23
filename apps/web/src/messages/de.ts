@@ -11,6 +11,18 @@ export const de = {
     description:
       "Filament-Lager und Druck-Galerie für den 3D-Druck: Jeder Druck bucht seine Gramm von der Spule ab, damit dir mitten im Druck nichts ausgeht. Privat und kostenlos.",
   },
+  /** Search titles and descriptions of the public pages (lib/seo.ts). */
+  seo: {
+    /** Landing page title in search results: name plus what people search for. */
+    landingTitle: "SpoolWorks – Filament-Lager und Druck-Galerie für 3D-Drucker",
+    alternateName: "spoolworks.de",
+    registerDescription:
+      "Leg kostenlos deine Werkstatt an: Filament-Spulen verwalten, Drucke mit ihrem Verbrauch eintragen und das Restgewicht jeder Spule im Blick behalten.",
+    loginDescription: "Melde dich bei SpoolWorks an, deinem Filament-Lager und deiner Druck-Galerie für den 3D-Druck.",
+    imprintDescription: "Impressum von SpoolWorks: wer die Seite betreibt und wie du uns erreichst.",
+    privacyDescription:
+      "Datenschutz bei SpoolWorks: welche Daten gespeichert werden, wo sie liegen und welche Rechte du hast. Keine Werbung, kein Tracking.",
+  },
   /** The link preview image (app/opengraph-image.tsx). */
   linkPreview: {
     alt: "SpoolWorks: Dein Filament. Deine Drucke. Ein Ort.",
@@ -521,6 +533,38 @@ export const de = {
       { title: "Spulen anlegen", body: "Produkt wählen, Leergewicht und Preis eintragen." },
       { title: "Drucken und buchen", body: "Pro Druck eintragen, welche Spule wie viel Gramm gebraucht hat." },
       { title: "Rest im Blick", body: "SpoolWorks warnt dich, bevor eine Spule leer ist." },
+    ],
+    faqEyebrow: "Häufige Fragen",
+    faqTitle: "Was du vorher wissen willst",
+    faq: [
+      {
+        q: "Was kostet SpoolWorks?",
+        a: "Nichts. SpoolWorks ist ein privates, nicht kommerzielles Projekt ohne Werbung und ohne kostenpflichtige Funktionen. Der Quellcode ist offen (AGPL-3.0).",
+      },
+      {
+        q: "Wie rechnet SpoolWorks das Restgewicht einer Spule aus?",
+        a: "Du trägst pro Druck ein, welche Spule wie viele Gramm verbraucht hat, und SpoolWorks zieht sie vom Bestand ab. Fehldrucke zählen mit. Zwischendurch kannst du die Spule wiegen: Das Leergewicht der Rolle wird abgezogen, und der gewogene Wert gilt ab dann.",
+      },
+      {
+        q: "Funktioniert das mit dem Bambu Lab AMS?",
+        a: "Ja. Du legst deine Drucker mit AMS-Einheiten (vier Slots) oder Einzelhaltern an und siehst, welche Spule in welchem Slot steckt und was im Regal liegt. Das klappt mit jedem Drucker, nicht nur mit Bambu Lab. SpoolWorks verbindet sich nicht mit dem Drucker: Belegung und Verbrauch trägst du selbst ein.",
+      },
+      {
+        q: "Muss ich jedes Filament selbst eintippen?",
+        a: "Nein. Der Katalog enthält über 24.000 Filamente aus der Open Filament Database und wird jede Nacht abgeglichen, bei vielen mit dem Leergewicht der Spule. Du suchst nach Marke und Farbe oder scannst den Barcode auf der Verpackung. Fehlt etwas, legst du das Produkt selbst an.",
+      },
+      {
+        q: "Wie finde ich eine Spule im Regal wieder?",
+        a: "Jede Spule bekommt einen kurzen Code. Daraus druckst du Etiketten mit QR-Code auf A4-Bögen oder beschreibst einen NFC-Tag. Mit dem Handy scannen, und die Spule ist offen, zum Wiegen oder Nachsehen.",
+      },
+      {
+        q: "Sieht jemand anderes meine Daten?",
+        a: "Nein. Lager, Spulen und Drucke sind privat. Teilen musst du selbst einschalten, pro Druck per Link oder als öffentliche Galerie, und auch dann sieht niemand dein Lager. Es gibt kein Tracking; Server und Datenbank stehen in Frankfurt.",
+      },
+      {
+        q: "Brauche ich eine App?",
+        a: "Nein. SpoolWorks läuft im Browser auf Handy, Tablet und PC. Auf dem Handy kannst du es zum Home-Bildschirm hinzufügen, dann öffnet es wie eine App.",
+      },
     ],
     ctaTitle: "Bereit für deine Werkstatt?",
     ctaBody: "Ein Konto, eine Werkstatt. Deine Daten bleiben privat.",

@@ -1,4 +1,4 @@
-import { ArrowRight, Images, Layers, Lock, Nfc, Printer, Scale, TriangleAlert } from "lucide-react";
+import { ArrowRight, ChevronDown, Images, Layers, Lock, Nfc, Printer, Scale, TriangleAlert } from "lucide-react";
 import Link from "next/link";
 
 import { LegalLinks } from "@/components/legal/legal-links";
@@ -18,6 +18,7 @@ export function Landing() {
       <Hero />
       <Features />
       <Steps />
+      <Faq />
       <Cta />
       <footer className="border-t">
         <div className="mx-auto flex max-w-6xl flex-col gap-3 px-4 py-8 text-sm text-muted-foreground sm:flex-row sm:items-center sm:justify-between md:px-8">
@@ -206,6 +207,37 @@ function Steps() {
             </li>
           ))}
         </ol>
+      </div>
+    </section>
+  );
+}
+
+/**
+ * Plain <details>: answers are in the HTML for search engines and work
+ * without JavaScript. The first one starts open so the section reads as text.
+ */
+function Faq() {
+  return (
+    <section className="border-b">
+      <div className="mx-auto grid max-w-6xl gap-8 px-4 py-16 md:grid-cols-[1fr_2fr] md:gap-16 md:px-8 md:py-20">
+        <div>
+          <Eyebrow>{t.faqEyebrow}</Eyebrow>
+          <h2 className="mt-3 text-3xl leading-tight font-medium tracking-tight md:text-4xl">{t.faqTitle}</h2>
+        </div>
+        <div className="border-t">
+          {t.faq.map((item, index) => (
+            <details key={item.q} open={index === 0} className="group border-b">
+              <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between gap-4 py-4 font-medium tracking-tight [&::-webkit-details-marker]:hidden">
+                <h3>{item.q}</h3>
+                <ChevronDown
+                  className="size-4 shrink-0 text-muted-foreground transition-transform group-open:rotate-180"
+                  aria-hidden="true"
+                />
+              </summary>
+              <p className="pb-5 text-muted-foreground">{item.a}</p>
+            </details>
+          ))}
+        </div>
       </div>
     </section>
   );
