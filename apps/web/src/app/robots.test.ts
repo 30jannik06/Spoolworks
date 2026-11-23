@@ -29,6 +29,7 @@ describe("robots and sitemap", () => {
       "https://spoolworks.de/auth/register",
       "https://spoolworks.de/impressum",
       "https://spoolworks.de/datenschutz",
+      "https://spoolworks.de/nutzungsbedingungen",
     ]);
   });
 });

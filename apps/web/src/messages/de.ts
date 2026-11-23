@@ -19,6 +19,8 @@ export const de = {
     registerDescription:
       "Leg kostenlos deine Werkstatt an: Filament-Spulen verwalten, Drucke mit ihrem Verbrauch eintragen und das Restgewicht jeder Spule im Blick behalten.",
     loginDescription: "Melde dich bei SpoolWorks an, deinem Filament-Lager und deiner Druck-Galerie für den 3D-Druck.",
+    termsDescription:
+      "Nutzungsbedingungen von SpoolWorks: was beim kostenlosen Filament-Lager erlaubt ist, was mit deinen Inhalten passiert und wie Teilen funktioniert.",
     imprintDescription: "Impressum von SpoolWorks: wer die Seite betreibt und wie du uns erreichst.",
     privacyDescription:
       "Datenschutz bei SpoolWorks: welche Daten gespeichert werden, wo sie liegen und welche Rechte du hast. Keine Werbung, kein Tracking.",
@@ -688,18 +690,91 @@ export const de = {
     navLabel: "Rechtliches",
     imprintTitle: "Impressum",
     privacyTitle: "Datenschutz",
-    sourceTitle: "Quellcode",
+    termsTitle: "Nutzungsbedingungen",
     imprintProvider: "Angaben gemäß § 5 DDG",
     imprintAboutTitle: "Über dieses Angebot",
     imprintAbout:
       "SpoolWorks ist ein privates, nicht kommerzielles Projekt. Es gibt keine Werbung und keine kostenpflichtigen Funktionen.",
+    /** AGPL-3.0: users of the running app are offered its source here and in the terms. */
+    sourceNote: "Der Quellcode ist offen (AGPL-3.0):",
+    sourceLink: "SpoolWorks auf GitHub",
     emailLabel: "E-Mail:",
     missing: "Die Anbieterangaben werden gerade eingetragen.",
     addressMissing: "Anschrift wird nachgetragen.",
     updated: "Stand: November 2026",
-    registerNote: "Mit dem Konto gilt die Datenschutzerklärung.",
+    registerNote: {
+      before: "Mit dem Anlegen akzeptierst du die ",
+      terms: "Nutzungsbedingungen",
+      middle: ". Es gilt die ",
+      privacy: "Datenschutzerklärung",
+      after: ".",
+    },
     settingsTitle: "Rechtliches",
     controllerTitle: "Verantwortlich",
+    termsProviderTitle: "Anbieter",
+    termsSections: [
+      {
+        title: "Worum es geht",
+        body: [
+          "SpoolWorks ist ein kostenloses, privates und nicht kommerzielles Angebot. Wer es betreibt, steht oben und im Impressum. Diese Bedingungen gelten, sobald du ein Konto anlegst. Sie sind bewusst kurz und in normaler Sprache geschrieben.",
+        ],
+      },
+      {
+        title: "Dein Konto",
+        body: [
+          "Gib eine E-Mail-Adresse an, unter der du erreichbar bist, und halte dein Passwort geheim. Was über dein Konto passiert, liegt in deiner Verantwortung. Du kannst dein Konto jederzeit in den Einstellungen löschen; dabei werden alle Einträge und Fotos sofort entfernt.",
+        ],
+      },
+      {
+        title: "Deine Inhalte",
+        body: [
+          "Was du einträgst und hochlädst, bleibt deins. Du erlaubst SpoolWorks nur, es zu speichern und dir anzuzeigen und, wenn du einen Druck oder deine Galerie teilst, es dort öffentlich zu zeigen. Teilen kannst du jederzeit beenden.",
+        ],
+      },
+      {
+        title: "Was nicht erlaubt ist",
+        body: [
+          "Teile nur Fotos und Texte, die du selbst gemacht hast oder verwenden darfst. Nicht erlaubt sind rechtswidrige oder beleidigende Inhalte, fremde Inhalte ohne Erlaubnis und Fotos, auf denen andere Menschen ohne ihr Einverständnis zu erkennen sind. Ebenfalls nicht erlaubt: den Dienst angreifen, stören oder automatisiert in großen Mengen abfragen.",
+        ],
+      },
+      {
+        title: "Was bei Verstößen passiert",
+        body: [
+          "Inhalte, die gegen diese Bedingungen oder gegen Gesetze verstoßen, darf der Anbieter entfernen oder ihr Teilen abschalten. Bei schweren oder wiederholten Verstößen darf er ein Konto sperren oder löschen. Wenn es die Lage erlaubt, bekommst du vorher Bescheid.",
+        ],
+      },
+      {
+        title: "Berechnete Werte",
+        body: [
+          "Restgewichte, Kosten und Statistiken rechnet SpoolWorks aus deinen Eingaben und aus Katalogdaten der Open Filament Database und der SpoolmanDB. Sie können von der Wirklichkeit abweichen. Verlass dich vor einem langen Druck nicht allein darauf, sondern wieg die Spule im Zweifel nach.",
+        ],
+      },
+      {
+        title: "Verfügbarkeit und Änderungen",
+        body: [
+          "SpoolWorks ist kostenlos. Deshalb gibt es keinen Anspruch darauf, dass es immer erreichbar ist oder alle Funktionen behält. Soll der Dienst ganz eingestellt werden, wird das mindestens vier Wochen vorher angekündigt.",
+        ],
+      },
+      {
+        title: "Haftung",
+        body: [
+          "Der Anbieter haftet unbeschränkt bei Vorsatz und grober Fahrlässigkeit sowie für Schäden an Leben, Körper oder Gesundheit. Im Übrigen ist die Haftung ausgeschlossen, soweit das Gesetz das bei einer kostenlosen Leistung zulässt.",
+        ],
+      },
+      {
+        title: "Quellcode",
+        body: [
+          "Diese Bedingungen gelten für die Nutzung von spoolworks.de. Der Quellcode selbst steht unter der GNU Affero General Public License 3.0 und ist öffentlich einsehbar.",
+        ],
+        links: [{ label: "SpoolWorks auf GitHub", href: "https://github.com/30jannik06/Spoolworks" }],
+      },
+      {
+        title: "Änderungen dieser Bedingungen",
+        body: [
+          "Ändern sich die Bedingungen, erfährst du das vorher per E-Mail oder beim Anmelden. Es gilt deutsches Recht.",
+        ],
+      },
+    ],
     privacySections: [
       {
         title: "Kurz gesagt",

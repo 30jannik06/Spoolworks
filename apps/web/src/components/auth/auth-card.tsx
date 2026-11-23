@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { Suspense } from "react";
 
 import { AuthForm } from "@/components/auth/auth-form";
@@ -27,9 +28,27 @@ export function AuthCard({
         </Suspense>
       </Tile>
       <div className="space-y-1">
-        {mode === "register" && <p className="text-xs text-muted-foreground">{de.legal.registerNote}</p>}
+        {mode === "register" && <RegisterNote />}
         <LegalLinks />
       </div>
     </div>
+  );
+}
+
+/** Brings the terms in at sign-up: shown right under the form. */
+function RegisterNote() {
+  const n = de.legal.registerNote;
+  return (
+    <p className="text-xs text-muted-foreground">
+      {n.before}
+      <Link href="/nutzungsbedingungen" className="underline underline-offset-4 hover:text-foreground">
+        {n.terms}
+      </Link>
+      {n.middle}
+      <Link href="/datenschutz" className="underline underline-offset-4 hover:text-foreground">
+        {n.privacy}
+      </Link>
+      {n.after}
+    </p>
   );
 }
